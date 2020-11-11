@@ -1,0 +1,26 @@
+{
+  "name": "extracitywebhook",
+  "version": "1.0.0",
+  "description": "AI Assistant for reserving Extra City Bus tickets",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeroxzen/extraCityWebhook.git"
+  },
+  "author": "Andile Jaden Mbele",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xeroxzen/extraCityWebhook/issues"
+  },
+  "homepage": "https://github.com/xeroxzen/extraCityWebhook#readme",
+  "dependencies": {
+    "actions-on-google": "^2.13.0",
+    "dialogflow-fulfillment": "^0.6.1",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.3.0"
+  }
+}
