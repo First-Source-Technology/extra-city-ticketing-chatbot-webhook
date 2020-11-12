@@ -43,15 +43,14 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
 
     function demo(agent) {
         agent.add("We are live, sending response from Webhook server as [Version 1.1.11.1]");
-        agent.add("Okay lett's see what we can get up to today");
     }
 
     function somethingNice(agent) {
-        agent.add("You are amazing bro. 120 lines of code in 5 hours, 1hr 40mins of actually keystrokes and 18 git commits, not forgetting that you also deployed to Google Cloud Functions and Heroku as well and the whole thing works flawlessly. That's pretty dope to me.");
+        agent.add("You are amazing");
     }
 
     function somethingCrazy(agent) {
-        agent.add("Let's dismantle all that we have done in the last 30 days and start afresh, this time 10x faster. Simply because I know you can haha");
+        agent.add("If you are driving down the road and pass a field with hay bales laying in it, point at the field and yell 'Hey'.");
     }
 
     function customPayloadDemo(agent){
@@ -76,7 +75,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
         agent.add( new dfff.Payload(agent.UNSPECIFIED, payloadData, {sendAsMessage: true, rawPayload: true }) )
         //agent.add("This is the custom payload function")
     }
-    // Confirming #capture-fullname.firstname #capture-fullname.lastname with phone number $phone-number wishes to travel from #capture-to.travel-from to #capture-date.travel-to on #capture-schedule.travel-date.original in the #confirm-booking.travel-time
+    
 
     function confirmationMessage(agent){
         var firstname = agent.context.get("capture-fullname").parameters.firstname;
@@ -89,7 +88,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
 
         agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname}, \nPHONE NUMBER: ${phone}, \nTRIP: ${travelFrom} to ${travelTo}, \nDATE: ${travelDate}, \nTIME: ${travelTime} \nSafe Travels with City Link`);
 
-        return db.collection('tickets').add({
+        return db.collection('ticketReservation').add({
             firstname: firstname,
             lastname: lastname,
             phone: phone,
@@ -101,7 +100,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
 
         }).then(ref =>
             //fetching free slots
-            console.log("Ticket details added")
+            console.log("Ticket reserved")
             )
     }
 
