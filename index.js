@@ -8,23 +8,25 @@ const app = express();
 const dfff = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
-
+// We need to require firebase-admin so we can access firebase
 var admin = require("firebase-admin");
 
 var serviceAccount = require("./config/extracitywebhook-firebase-adminsdk-1eeft-734192acdb.json");
 
+// Use a try catch so we can log errors
 try {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         databaseURL: "https://extracitywebhook.firebaseio.com"
     });
 
-    console.log("Connected to DB");
+    console.log("Connected to the Firestore Database");
     
 } catch (error) {
     console.log(`Error here ${error}`);
 }
 
+// db access using firestore instead of the realtime database
 var db = admin.firestore();
 
 
@@ -32,9 +34,11 @@ var db = admin.firestore();
 const port = process.env.PORT || 8000
 
 app.get('/', (req, res)=> {
-    res.send("We are serving live.")
+    res.send("Your application is running with no issues.")
 });
 
+
+// whatever we may want to output we will write it in here
 app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
     const agent = new dfff.WebhookClient({
         request : req,
@@ -86,7 +90,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
         var travelDate = agent.context.get("capture-schedule").parameters["travel-date"];
         var travelTime = agent.context.get("confirm-booking").parameters["travel-time"];
 
-        agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname}, \nPHONE NUMBER: ${phone}, \nTRIP: ${travelFrom} to ${travelTo}, \nDATE: ${travelDate}, \nTIME: ${travelTime} \nSafe Travels with City Link`);
+        agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname}, \nPHONE NUMBER: ${phone}, \nTRIP: ${travelFrom} to ${travelTo}, \nDATE: ${travelDate}, \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`);
 
         return db.collection('ticketReservation').add({
             firstname: firstname,
@@ -100,7 +104,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
 
         }).then(ref =>
             //fetching free slots
-            console.log("Ticket reserved")
+            console.log("Ticket successfully reserved")
             )
     }
 
