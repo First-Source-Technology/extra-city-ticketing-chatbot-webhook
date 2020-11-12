@@ -79,7 +79,6 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
         agent.add( new dfff.Payload(agent.UNSPECIFIED, payloadData, {sendAsMessage: true, rawPayload: true }) )
         //agent.add("This is the custom payload function")
     }
-    
 
     function confirmationMessage(agent){
         var firstname = agent.context.get("capture-fullname").parameters.firstname;
@@ -90,7 +89,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
         var travelDate = agent.context.get("capture-schedule").parameters["travel-date"];
         var travelTime = agent.context.get("confirm-booking").parameters["travel-time"];
 
-        agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname}, \nPHONE NUMBER: ${phone}, \nTRIP: ${travelFrom} to ${travelTo}, \nDATE: ${travelDate}, \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`);
+        agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname} \nPHONE NUMBER: ${phone} \nTRIP: ${travelFrom} to ${travelTo} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`);
 
         return db.collection('ticketReservation').add({
             firstname: firstname,
@@ -120,4 +119,5 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
 
 app.listen(port, () => {
     console.log(`Server is live at port ${port}`)
+    console.log('Press Ctrl+C')
 });
