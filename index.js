@@ -90,7 +90,7 @@ app.post('/dialogflow-fulfillment', express.json(), (req, res)=>{
         var travelTime = agent.context.get("confirm-booking").parameters["travel-time"];
 
         // save human readable date
-        const dateObject = new Date();
+        const dateObject = new Date(); 
         
         agent.add(`BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname} \nPHONE NUMBER: ${phone} \nTRIP: ${travelFrom} to ${travelTo} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`);
 
