@@ -109,7 +109,9 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     agent.add(
-      `BOOKING CONFIRMATION \nNAME: ${fullname} \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`
+      `BOOKING CONFIRMATION \nNAME: ${
+        fullname || busRider[0]
+      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`
     );
 
     return db
@@ -137,6 +139,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   intentMap.set("webhookDemo", demo);
   intentMap.set("customPayloadDemo", customPayloadDemo);
   intentMap.set("confirmationMessage", confirmationMessage);
+  intentMap.set("viewTickets", viewTickets);
   intentMap.set("somethingNice", somethingNice);
   intentMap.set("somethingCrazy", somethingCrazy);
 
