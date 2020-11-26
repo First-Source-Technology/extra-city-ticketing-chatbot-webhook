@@ -109,24 +109,27 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     agent.add(
-      `BOOKING CONFIRMATION \nFULL NAME: ${firstname} ${lastname} \nPHONE NUMBER: ${phone} \nTRIP: ${travelFrom} to ${travelTo} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`
+      `BOOKING CONFIRMATION \nNAME: ${fullname} \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`
     );
 
     return db
       .collection("ticketReservation")
       .add({
-        firstname: firstname,
-        lastname: lastname,
+        // firstname: firstname,
+        // lastname: lastname,
+        fullname: fullname,
+        busRider: busRider,
         phone: phone,
-        travelFrom: travelFrom,
-        travelTo: travelTo,
-        travelDate: travelDate,
-        travelTime: travelTime,
+        trip: trip,
+        dateOfTravel: travelDate,
+        timeOfTravel: travelTime,
         time: dateObject,
       })
-      .then((ref) =>
-        //fetching free slots
-        console.log("Ticket successfully reserved")
+      .then(
+        (ref) =>
+          //fetching free slots
+          console.log("Ticket successfully reserved"),
+        agent.add("Ticket reservation successful")
       );
   }
 
@@ -142,5 +145,5 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is live at port ${port}`);
-  console.log("Press Ctrl+C");
+  console.log("Press Ctrl+C to abort connection");
 });
