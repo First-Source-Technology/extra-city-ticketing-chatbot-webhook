@@ -111,7 +111,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     agent.add(
       `BOOKING CONFIRMATION \nNAME: ${
         fullname || busRider[0]
-      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travels with Extra City Luxury Coaches`
+      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travel with Extracity Luxury`
     );
 
     return db
@@ -133,6 +133,10 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
           console.log("Ticket successfully reserved"),
         agent.add("Ticket reservation successful")
       );
+  }
+
+  function viewTickets() {
+    agent.add(`We're yet to work on this function`);
   }
 
   var intentMap = new Map();
