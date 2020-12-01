@@ -58,34 +58,6 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     );
   }
 
-  function customPayloadDemo(agent) {
-    var payloadData = {
-      richContent: [
-        [
-          {
-            type: "accordion",
-            title: "Accordion title",
-            subtitle: "Accordion subtitle",
-            image: {
-              src: {
-                rawUrl: "https://example.com/images/logo.png",
-              },
-            },
-            text: "Accordion text",
-          },
-        ],
-      ],
-    };
-
-    agent.add(
-      new dfff.Payload(agent.UNSPECIFIED, payloadData, {
-        sendAsMessage: true,
-        rawPayload: true,
-      })
-    );
-    //agent.add("This is the custom payload function")
-  }
-
   function confirmationMessage(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
@@ -105,7 +77,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
-    var busRider = `${person || fullname}`;
+    var busRider = `${person}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     if (travelFrom == travelTo) {
@@ -114,7 +86,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
       );
     } else {
       agent.add(
-        `BOOKING CONFIRMATION \nNAME: ${
+        `TICKET BOOKING CONFIRMATION \nNAME: ${
           fullname || busRider[0]
         } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travel with Extracity Luxury`
       );
