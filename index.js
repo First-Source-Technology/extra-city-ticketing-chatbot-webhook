@@ -108,31 +108,37 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var busRider = `${person || fullname}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
-    agent.add(
-      `BOOKING CONFIRMATION \nNAME: ${
-        fullname || busRider[0]
-      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travel with Extracity Luxury`
-    );
-
-    return db
-      .collection("ticketReservation")
-      .add({
-        // firstname: firstname,
-        // lastname: lastname,
-        fullname: fullname,
-        busRider: busRider,
-        phone: phone,
-        trip: trip,
-        dateOfTravel: travelDate,
-        timeOfTravel: travelTime,
-        time: dateObject,
-      })
-      .then(
-        (ref) =>
-          //fetching free slots
-          console.log("Ticket successfully reserved"),
-        agent.add("Ticket reservation successful")
+    if (travelFrom == travelTo) {
+      agent.add(
+        `The trip departure point cannot be the same as the destination. Please start again your booking process. Type Start Over`
       );
+    } else {
+      agent.add(
+        `BOOKING CONFIRMATION \nNAME: ${
+          fullname || busRider[0]
+        } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travel with Extracity Luxury`
+      );
+
+      return db
+        .collection("ticketReservation")
+        .add({
+          // firstname: firstname,
+          // lastname: lastname,
+          fullname: fullname,
+          busRider: busRider,
+          phone: phone,
+          trip: trip,
+          dateOfTravel: travelDate,
+          timeOfTravel: travelTime,
+          time: dateObject,
+        })
+        .then(
+          (ref) =>
+            //fetching free slots
+            console.log("Ticket successfully reserved"),
+          agent.add("Ticket reservation successful")
+        );
+    }
   }
 
   function viewTickets() {
