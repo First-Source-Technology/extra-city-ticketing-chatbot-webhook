@@ -42,28 +42,33 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     response: res,
   });
 
+  // First function, let's test if we are running live
   function demo(agent) {
     agent.add(
       "We are live, sending response from Webhook server as [Version 1.1.11.1]"
     );
   }
 
+  // Second function: this is for telling something nice
   function somethingNice(agent) {
     agent.add("You are amazing");
   }
 
+  // this function tells something cute
   function somethingCrazy(agent) {
     agent.add(
       "If you are driving down the road and pass a field with hay bales laying in it, point at the field and yell 'Hey'."
     );
   }
 
+  // Prompt the user for where they're travelling from
   function askingBookingFrom(agent) {
     const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
     agent.add(departure);
   }
 
+  // Prompt the user for where they're traavelling to
   function askBookingTo(agent) {
     const destination =
       "What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.";
@@ -87,11 +92,9 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     ];
 
     //Join firstname and lastname
-
     var fullname = `${firstname} ${lastname}`;
 
     // Let's hear the agent
-
     agent.add(
       `Confirm ${
         fullname || person
@@ -99,6 +102,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     );
   }
 
+  // save the user data to the db
   function confirmationMessage(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
@@ -154,10 +158,12 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     }
   }
 
+  // view all ordered tickets
   function viewTickets() {
     agent.add(`We're yet to work on this function`);
   }
 
+  // intentMaps are more like a register for all functions
   var intentMap = new Map();
   intentMap.set("webhookDemo", demo);
   intentMap.set("askBookingFrom", askBookingFrom);
