@@ -71,6 +71,34 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     agent.add(destination);
   }
 
+  //confirm data before saving to db
+  function confirmBooking(agent) {
+    var firstname = agent.context.get("capture-fullname").parameters.firstname;
+    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    var person = agent.context.get("capture-fullname").parameters.person;
+    var phone = agent.context.get("confirm-ticket").parameters["phone-number"];
+    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+    var travelTo = agent.context.get("capture-date").parameters.travelTo;
+    var travelDate = agent.context.get("capture-schedule").parameters[
+      "travel-date"
+    ];
+    var travelTime = agent.context.get("confirm-booking").parameters[
+      "travel-time"
+    ];
+
+    //Join firstname and lastname
+
+    var fullname = `${firstname} ${lastname}`;
+
+    // Let's hear the agent
+
+    agent.add(
+      `Confirm ${
+        fullname || person
+      } with phone number ${phone} wishes to travel from ${travelFrom} to ${travelTo} on ${travelDate} in the ${travelTime}. \nTo proceed type Yes or No to Cancel`
+    );
+  }
+
   function confirmationMessage(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
