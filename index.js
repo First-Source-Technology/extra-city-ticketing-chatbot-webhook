@@ -59,9 +59,16 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   }
 
   function askingBookingFrom(agent) {
-    const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe and Harare, Hwange and Victoria Falls.`;
+    const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
     agent.add(departure);
+  }
+
+  function askBookingTo(agent) {
+    const destination =
+      "What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.";
+
+    agent.add(destination);
   }
 
   function confirmationMessage(agent) {
