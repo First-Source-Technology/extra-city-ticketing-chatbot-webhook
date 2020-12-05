@@ -57,12 +57,12 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   // this function tells something cute
   function somethingCrazy(agent) {
     agent.add(
-      "If you are driving down the road and pass a field with hay bales laying in it, point at the field and yell 'Hey'."
+      `If you are driving down the road and pass a field with hay bales laying in it, point at the field and yell 'Hey'.`
     );
   }
 
   // Prompt the user for where they're travelling from
-  function askingBookingFrom(agent) {
+  function askBookingFrom(agent) {
     const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
     agent.add(departure);
@@ -70,8 +70,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
   // Prompt the user for where they're traavelling to
   function askBookingTo(agent) {
-    const destination =
-      "What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.";
+    const destination = `What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
     agent.add(destination);
   }
