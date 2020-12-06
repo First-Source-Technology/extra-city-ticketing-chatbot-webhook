@@ -75,6 +75,32 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     agent.add(destination);
   }
 
+  //let's get the time right
+  function askBookingDate(agent) {
+    let travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+    let travelTo = agent.context.get("capture-date").parameters.travelTo;
+
+    //simplify
+    const trip = `${travelFrom} to ${travelTo}`;
+
+    if (travelFrom == travelTo) {
+      console.log(trip);
+      agent.add(
+        `The trip departure point cannot be the same as the destination. Please start again your booking process. Type Start Over`
+      );
+    } else if (travelFrom || travelTo == null) {
+      console.log("Departure point and Destination cannot be blank");
+      agent.add(
+        `The trip departure point cannot be empty. Please start again your booking process. Type Start Over`
+      );
+    } else {
+      console.log(trip);
+      agent.add(
+        `On what date would you like to travel? \n\nExample: 30 December 2020 or next week Thursday`
+      );
+    }
+  }
+
   //confirm data before saving to db
   function confirmBooking(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
