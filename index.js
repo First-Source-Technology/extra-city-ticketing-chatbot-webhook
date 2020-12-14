@@ -143,7 +143,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var travelTo = agent.context.get("capture-date").parameters.travelTo;
     var travelDate = agent.context.get("capture-schedule").parameters[
       "travel-date"
-    ];
+  ].split("T")[0];
     var travelTime = agent.context.get("confirm-booking").parameters[
       "travel-time"
     ];
