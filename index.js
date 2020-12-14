@@ -76,7 +76,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     agent.add(departure);
   }
 
-  // Prompt the user for where they're traavelling to
+  // Prompt the user for where they're travelling to
   function askBookingTo(agent) {
     const destination = `What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
@@ -156,8 +156,20 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var busRider = `${person}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
+    // unique id generator (uniqid())
+    var uniqid = require('uniqid');
+
+    //another unique generator (uuid())
+    // var uuidV1 = require('uuid/v1');
+
+    //ticket // IDEA:
+    var ticketId = uniqid.process()
+
+    //reservation id
+    // var reservationId = uuidV1();
+
     agent.add(
-      `TICKET BOOKING CONFIRMATION \nNAME: ${fullname} \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \n\nSafe Travel with Extracity Luxury`
+      `TICKET BOOKING CONFIRMATION \nNAME: ${fullname} \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \nTicket ID: ${ticketId} \n\nSafe Travel with Extracity Luxury`
     );
 
     return db
@@ -172,6 +184,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         dateOfTravel: travelDate,
         timeOfTravel: travelTime,
         time: dateObject,
+        ticketId: ticketId,
       })
       .then(
         (ref) =>
