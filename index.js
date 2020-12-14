@@ -199,6 +199,28 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     agent.add(`We're yet to work on this function`);
   }
 
+  // reading data from db
+  function issuedTo(agent) {
+      // name
+      var name = agent.context.get("viewTicket").parameters.person;
+      // var surname = agent.context.get("viewTicket").parameters["last-name"];
+      // const phone = agent.context.get("viewTicket").parameters.phone;
+      const docRef = db.collection('tickets').doc(sessionId);
+
+      return docRef.get()
+        .then(doc => {
+            if (!doc.exists) {
+                agent.add('No data found in the database!');
+                console.log(doc);
+            } else {
+                agent.add(doc.data().name);
+            }
+            return Promise.resolve('Read Complete');
+        }).catch(() => {
+            agent.add("Could not retrieve your ticket information from the database");
+        });
+  }
+
   // intentMaps are more like a register for all functions
   var intentMap = new Map();
   intentMap.set("webhookDemo", demo);
