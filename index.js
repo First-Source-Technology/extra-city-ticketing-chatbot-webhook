@@ -73,18 +73,18 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   }
 
   // Prompt the user for where they're travelling from
-  function askBookingFrom(agent) {
-    const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
+  // function askBookingFrom(agent) {
+  //   const departure = `Please tell us where you are traveling from? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
-    agent.add(departure);
-  }
+  //   agent.add(departure);
+  // }
 
-  // Prompt the user for where they're travelling to
-  function askBookingTo(agent) {
-    const destination = `What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
+  // // Prompt the user for where they're travelling to
+  // function askBookingTo(agent) {
+  //   const destination = `What is your travel destination? \n\nRoutes covered include Bulawayo, Chegutu, Gweru, Kadoma, Kwekwe, Harare, Hwange and Victoria Falls.`;
 
-    agent.add(destination);
-  }
+  //   agent.add(destination);
+  // }
 
   //let's get the time right
   function askBookingDate(agent) {
@@ -111,30 +111,30 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   }
 
   //confirm data before saving to db
-  function confirmBooking(agent) {
-    var firstname = agent.context.get("capture-fullname").parameters.firstname;
-    var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    var person = agent.context.get("capture-fullname").parameters.person;
-    var phone = agent.context.get("confirm-ticket").parameters["phone-number"];
-    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
-    var travelTo = agent.context.get("capture-date").parameters.travelTo;
-    var travelDate = agent.context.get("capture-schedule").parameters[
-      "travel-date"
-    ];
-    var travelTime = agent.context.get("confirm-booking").parameters[
-      "travel-time"
-    ];
+  // function confirmBooking(agent) {
+  //   var firstname = agent.context.get("capture-fullname").parameters.firstname;
+  //   var lastname = agent.context.get("capture-fullname").parameters.lastname;
+  //   var person = agent.context.get("capture-fullname").parameters.person;
+  //   var phone = agent.context.get("confirm-ticket").parameters["phone-number"];
+  //   var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+  //   var travelTo = agent.context.get("capture-date").parameters.travelTo;
+  //   var travelDate = agent.context.get("capture-schedule").parameters[
+  //     "travel-date"
+  //   ];
+  //   var travelTime = agent.context.get("confirm-booking").parameters[
+  //     "travel-time"
+  //   ];
 
-    //Join firstname and lastname
-    var fullname = `${firstname} ${lastname}`;
+  //   //Join firstname and lastname
+  //   var fullname = `${firstname} ${lastname}`;
 
-    // Let's hear the agent
-    agent.add(
-      `Confirm ${
-        fullname || person
-      } with phone number ${phone} wishes to travel from ${travelFrom} to ${travelTo} on ${travelDate} in the ${travelTime}. \nTo proceed type Yes or No to Cancel`
-    );
-  }
+  //   // Let's hear the agent
+  //   agent.add(
+  //     `Confirm ${
+  //       fullname || person
+  //     } with phone number ${phone} wishes to travel from ${travelFrom} to ${travelTo} on ${travelDate} in the ${travelTime}. \nTo proceed type Yes or No to Cancel`
+  //   );
+  // }
 
   // Get Traveller's Name
   function askTravellersName(agent) {
@@ -269,12 +269,14 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   // intentMaps are more like a register for all functions
   var intentMap = new Map();
   intentMap.set("webhookDemo", demo);
-  intentMap.set("askBookingFrom", askBookingFrom);
-  intentMap.set("askBookingTo", askBookingTo);
+  // intentMap.set("askBookingFrom", askBookingFrom);
+  // intentMap.set("askBookingTo", askBookingTo);
   intentMap.set("askBookingDate", askBookingDate);
   intentMap.set("askName", askName);
   intentMap.set("bitOff", bitOff);
-  intentMap.set("confirmBooking", confirmBooking);
+  intentMap.set("askTravellersName", askTravellersName);
+  intentMap.set("askTravellersPhone", askTravellersPhone);
+  // intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
   intentMap.set("viewTickets", viewTickets);
   intentMap.set("issuedTo", issuedTo);
