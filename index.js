@@ -151,9 +151,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         "The name of the one travelling is required. The section cannot be empty."
       );
     } else {
-      agent.add(
-        "May I have your mobile phone number please. \n\nFormat: 0776814472"
-      );
+      agent.add("May I have your mobile phone number. \n\nFormat: 0776814472");
     }
   }
 
@@ -162,12 +160,12 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
     var person = agent.context.get("capture-fullname").parameters.person;
-    var phone = agent.context.get("confirm-ticket").parameters["phone-number"];
+    var phone = agent.context.get("confirm-ticket").parameters.phoneNumber;
     var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
     var travelTo = agent.context.get("capture-date").parameters.travelTo;
-    var travelDate = agent.context
-      .get("capture-schedule")
-      .parameters["travel-date"].split("T")[0];
+    var travelDate = agent.context.get("capture-schedule").parameters[
+      "travel-date"
+    ];
     var travelTime = agent.context.get("confirm-booking").parameters[
       "travel-time"
     ];
@@ -216,7 +214,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         // firstname: firstname,
         // lastname: lastname,
         fullname: fullname,
-        busRider: busRider,
+        person: person,
         phone: phone,
         trip: trip,
         dateOfTravel: travelDate,
