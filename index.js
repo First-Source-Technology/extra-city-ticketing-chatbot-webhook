@@ -136,6 +136,11 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     );
   }
 
+  // Get Traveller's Name
+  function askTravellersName(agent) {
+    agent.add("May I have your first name and surname to finish booking?");
+  }
+
   //Get Traveller's Phone
   function askTravellersPhone(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
