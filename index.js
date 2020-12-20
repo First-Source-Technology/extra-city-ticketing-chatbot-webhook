@@ -175,9 +175,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     const dateObject = new Date();
 
     //new Uni Timestamp
-    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss")
-      .toDate()
-      .format("LL");
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
