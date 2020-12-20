@@ -30,6 +30,7 @@ try {
 
 // db access using firestore instead of the realtime database
 var db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true });
 
 //Let's define port number
 const port = process.env.PORT || 8000;
