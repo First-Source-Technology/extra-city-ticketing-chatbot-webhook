@@ -231,6 +231,11 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
       );
   }
 
+  //finished
+  function done(agent) {
+    agent.add("Thank you for using City Link. We hope to see you again.");
+  }
+
   // view all ordered tickets
   function viewTickets() {
     agent.add(`We're yet to work on this function`);
@@ -272,6 +277,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
   intentMap.set("bitOff", bitOff);
   intentMap.set("askTravellersName", askTravellersName);
   intentMap.set("askTravellersPhone", askTravellersPhone);
+  intentMap.set("done", done);
   // intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
   intentMap.set("viewTickets", viewTickets);
