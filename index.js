@@ -136,6 +136,24 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     );
   }
 
+  //Get Traveller's Phone
+  function askTravellersPhone(agent) {
+    var firstname = agent.context.get("capture-fullname").parameters.firstname;
+    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    var person = agent.context.get("capture-fullname").parameters.person;
+
+    var name = `${firstname} ${lastname}`;
+    if (name == null || name == "" || person == null) {
+      agent.add(
+        "The name of the one travelling is required. The section cannot be empty."
+      );
+    } else {
+      agent.add(
+        "May I have your mobile phone number please. \n\nFormat: 0776814472"
+      );
+    }
+  }
+
   // save the user data to the db
   function confirmationMessage(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
