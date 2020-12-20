@@ -202,9 +202,9 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
     // Telegram
     agent.add(
-      `TICKET BOOKING CONFIRMATION \nNAME: ${
+      `TICKET BOOKING CONFIRMATION \nFull Name: ${
         fullname || person
-      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${momentTravelDate} \nTIME: ${travelTime} \nTicket #: ${ticketId} \n\nSafe Travel with Extracity Luxury`
+      } \nPhone Number: ${phone} \nTrip: ${trip} \nTravel Date: ${momentTravelDate} \nTravel Time: ${travelTime} \nTicket ID: ${ticketId} \n\nSafe Travel with Extracity Luxury`
     );
 
     return db
