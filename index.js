@@ -47,9 +47,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
   // First function, let's test if we are running live
   function demo(agent) {
-    agent.add(
-      "We are live, sending response from Webhook server as [Version 1.1.11.1]"
-    );
+    agent.add("We are live, sending response from Webhook server as [v45]");
   }
 
   // Second function: this is for telling something nice
