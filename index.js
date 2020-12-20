@@ -233,7 +233,9 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
   //finished
   function done(agent) {
-    agent.add("Thank you for using City Link. We hope to see you again.");
+    agent.add(
+      "Thank you for using Extracity Luxury Coaches. We hope to see you again."
+    );
   }
 
   // view all ordered tickets
