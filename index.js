@@ -9,7 +9,8 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 
-moment().format("LLL");
+// moment().format("LLL");
+moment().toDate();
 
 // We need to require firebase-admin so we can access firebase
 var admin = require("firebase-admin");
@@ -176,8 +177,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
     //new Uni Timestamp
     var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss")
-      .format("LL")
-      .toDate();
+      .format("LL");
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
