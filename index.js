@@ -9,8 +9,7 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 
-// moment().format("LLL");
-moment().toDate();
+moment().format("LLL");
 
 // We need to require firebase-admin so we can access firebase
 var admin = require("firebase-admin");
@@ -176,8 +175,11 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     const dateObject = new Date();
 
     //new Uni Timestamp
-    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss")
-      .format("LL");
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").format(
+      "LL"
+    );
+
+    var newTravelDate = momentTravelDate.toDate();
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
@@ -220,6 +222,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         trip: trip,
         dateOfTravel: travelDate,
         momentTravelDate: momentTravelDate,
+        newTravelDate: newTravelDate,
         timeOfTravel: travelTime,
         time: dateObject,
         ticketId: ticketId,
