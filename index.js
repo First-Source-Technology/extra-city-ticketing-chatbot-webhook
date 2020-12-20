@@ -175,8 +175,18 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     //reservation id
     // var reservationId = uuidV1();
 
+    //testing
+    console.log(
+      `\n\nNAME: ${
+        fullname || person
+      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \nTicket ID: ${ticketId} \nMoment Time: ${momentTravelDate}`
+    );
+
+    // Telegram
     agent.add(
-      `TICKET BOOKING CONFIRMATION \nNAME: ${fullname} \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \nTicket ID: ${ticketId} \n\nSafe Travel with Extracity Luxury`
+      `TICKET BOOKING CONFIRMATION \nNAME: ${
+        fullname || person
+      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${momentTravelDate} \nTIME: ${travelTime} \nTicket #: ${ticketId} \n\nSafe Travel with Extracity Luxury`
     );
 
     return db
@@ -189,6 +199,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         phone: phone,
         trip: trip,
         dateOfTravel: travelDate,
+        momentTravelDate: momentTravelDate,
         timeOfTravel: travelTime,
         time: dateObject,
         ticketId: ticketId,
