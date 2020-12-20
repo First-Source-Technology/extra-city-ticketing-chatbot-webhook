@@ -154,9 +154,13 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     // save human readable date
     const dateObject = new Date();
 
+    //new Uni Timestamp
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").format(
+      "LL"
+    );
+
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
-    var busRider = `${person}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     // unique id generator (uniqid())
