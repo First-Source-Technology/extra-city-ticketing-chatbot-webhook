@@ -170,7 +170,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     // var uuidV1 = require('uuid/v1');
 
     //ticket // IDEA:
-    var ticketId = uniqid.process();
+    var ticketId = uniqid("Extra-", "-City");
 
     //reservation id
     // var reservationId = uuidV1();
