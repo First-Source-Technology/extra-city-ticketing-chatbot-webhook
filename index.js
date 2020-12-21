@@ -216,7 +216,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
         person: person,
         phone: phone,
         trip: trip,
-        dateOfTravel: travelDate,
+        // dateOfTravel: travelDate,
         momentTravelDate: momentTravelDate,
         timeOfTravel: travelTime,
         time: dateObject,
