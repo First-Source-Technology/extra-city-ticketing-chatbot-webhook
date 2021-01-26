@@ -98,42 +98,25 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
       agent.add(
         `The trip departure point cannot be the same as the destination.`
       );
+      //Quickly replies
+      agent.add(new Suggestion("Start Over"));
+      agent.add(new Suggestion("Cancel"));
+
+      //this starts here
     } else if (travelFrom == null) {
       console.log("Departure point and Destination cannot be blank");
       agent.add(`The Departure point cannot be empty.`);
+
+      // Suggestions
+      agent.add(new Suggestion(`Start Over`));
+      agent.add(new Suggestion(`Cancel`));
     } else {
       console.log(trip);
       agent.add(
-        `On what date would you like to travel? \n\nExample: 30 December 2020 or next week Thursday`
+        `On what date would you like to travel? \n\nExample: 30 January 2021 or next week Thursday`
       );
     }
   }
-
-  //confirm data before saving to db
-  // function confirmBooking(agent) {
-  //   var firstname = agent.context.get("capture-fullname").parameters.firstname;
-  //   var lastname = agent.context.get("capture-fullname").parameters.lastname;
-  //   var person = agent.context.get("capture-fullname").parameters.person;
-  //   var phone = agent.context.get("confirm-ticket").parameters["phone-number"];
-  //   var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
-  //   var travelTo = agent.context.get("capture-date").parameters.travelTo;
-  //   var travelDate = agent.context.get("capture-schedule").parameters[
-  //     "travel-date"
-  //   ];
-  //   var travelTime = agent.context.get("confirm-booking").parameters[
-  //     "travel-time"
-  //   ];
-
-  //   //Join firstname and lastname
-  //   var fullname = `${firstname} ${lastname}`;
-
-  //   // Let's hear the agent
-  //   agent.add(
-  //     `Confirm ${
-  //       fullname || person
-  //     } with phone number ${phone} wishes to travel from ${travelFrom} to ${travelTo} on ${travelDate} in the ${travelTime}. \nTo proceed type Yes or No to Cancel`
-  //   );
-  // }
 
   // Get Traveller's Name
   function askTravellersName(agent) {
