@@ -96,7 +96,7 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     if (travelFrom == travelTo) {
       console.log(trip);
       agent.add(
-        `The trip departure point cannot be the same as the destination. Please start again your booking process. Type Start Over`
+        `The trip departure point cannot be the same as the destination.`
       );
     } else if (travelFrom == null) {
       console.log("Departure point and Destination cannot be blank");
