@@ -139,6 +139,14 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     }
   }
 
+  // ticket id function
+  function ticketID() {
+    //format: ExC-yymmdd-count
+
+    const date = new Date();
+    var dateString = formatDate(date);
+  }
+
   // save the user data to the db
   function confirmationMessage(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
