@@ -1,7 +1,7 @@
 {
   "name": "extracitywebhook",
   "version": "1.0.0",
-  "description": "AI Assistant for reserving Extra City Bus tickets",
+  "description": "Conversational AI Assistant for reserving Extra City Bus tickets",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeroxzen/extraCityWebhook.git"
+    "url": "git+https://github.com/First-Source-Technology/extra-city-ticketing-chatbot-webhook.git"
   },
   "author": "Andile Jaden Mbele",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xeroxzen/extraCityWebhook/issues"
+    "url": "https://github.com/First-Source-Technology/extra-city-ticketing-chatbot-webhook/issues"
   },
-  "homepage": "https://github.com/xeroxzen/extraCityWebhook#readme",
+  "homepage": "https://github.com/First-Source-Technology/extra-city-ticketing-chatbot-webhook/blob/main/README.md",
   "dependencies": {
     "actions-on-google": "^2.13.0",
     "dialogflow-fulfillment": "^0.6.1",
