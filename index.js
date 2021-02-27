@@ -230,9 +230,12 @@ app.post("/booking", express.json(), (req, res) => {
         (ref) =>
           //fetching free slots
           console.log("Ticket successfully reserved"),
-        agent.add("Ticket reservation successful")
+        agent.add(new Suggestion(`Proceed to payment`)),
+        agent.add(new Suggestion(`Cancel`))
       );
   }
+
+  //payment functions
 
   //finished
   function done(agent) {
