@@ -145,6 +145,25 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
 
     const date = new Date();
     var dateString = formatDate(date);
+    var num = (Math.floor(Math.random() * 1000) + 1).toString();
+    num.length == 1 && (num = "0" + num);
+    num.length == 2 && (num = "0" + num);
+
+    return `ExC-${dateString}-${num}`;
+  }
+
+  //format date
+  function formatDate(date) {
+    let str = "";
+    var y = date.getFullYear().toString();
+    var m = (date.getMonth() + 1).toString();
+    var d = date.getDate().toString();
+
+    d.length == 1 && (d = "0" + d);
+    m.length == 1 && (m = "0" + m);
+
+    str = y + m + d;
+    return str;
   }
 
   // save the user data to the db
@@ -172,14 +191,8 @@ app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
     var fullname = `${firstname} ${lastname}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
-    // unique id generator (uniqid())
-    var uniqid = require("uniqid");
-
-    //another unique generator (uuid())
-    // var uuidV1 = require('uuid/v1');
-
     //ticket // IDEA:
-    var ticketId = uniqid("Extra-", "-City");
+    var ticketId = ticketID();
 
     //reservation id
     // var reservationId = uuidV1();
