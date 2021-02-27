@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
 });
 
 // whatever we may want to output we will write it in here
-app.post("/dialogflow-fulfillment", express.json(), (req, res) => {
+app.post("/booking", express.json(), (req, res) => {
   const agent = new dfff.WebhookClient({
     request: req,
     response: res,
