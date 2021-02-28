@@ -203,7 +203,7 @@ app.post("/booking", express.json(), (req, res) => {
     //testing
     console.log(
       `\n\nNAME: ${
-        fullname || person
+        fullname || person.name
       } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \nTicket ID: ${ticketId} \nMoment Time: ${momentTravelDate}`
     );
 
