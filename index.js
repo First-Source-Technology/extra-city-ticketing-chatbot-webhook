@@ -240,8 +240,10 @@ app.post("/booking", express.json(), (req, res) => {
     agent.add("May we have your email address?");
   }
 
-  function paymentMobile(agent) {
-    agent.add("May we your phone number. \n\nFormat: 07XXXXXXXX");
+  function paymentMobileNumber(agent) {
+    agent.add(
+      "May we have your phone number which you'll for mobile transfer. \n\nFormat: 07XXXXXXXX"
+    );
   }
 
   function paymentAmount(agent) {
@@ -292,9 +294,14 @@ app.post("/booking", express.json(), (req, res) => {
     var ticketId = ticketID();
 
     //payments
-    var email = agent.context
+    var payEmail = agent.context.get("paymentEmail-followup").parameters.email;
+    var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
+      "phone-number"
+    ];
+    var paymentOption = agent.context.get("paymentChoice-followup").parameters
+      .paymentChoice;
+    var amount = agent.context.get("paymentAmount-followup").parameters.amount;
   }
-
 
   //finished
   function done(agent) {
@@ -354,8 +361,9 @@ app.post("/booking", express.json(), (req, res) => {
 
   //payments
   intentMap.set("paymentEmail", paymentEmail);
-  intentMap.set("paymentMobile", paymentMobile);
+  intentMap.set("paymentMobileNumber", paymentMobileNumber);
   intentMap.set("paymentAmount", paymentAmount);
+  intent.set("paymentConfirmation - yes", processPayment);
 
   agent.handleRequest(intentMap);
 });
