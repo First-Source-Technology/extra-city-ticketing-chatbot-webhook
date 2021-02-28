@@ -352,7 +352,7 @@ app.post("/booking", express.json(), (req, res) => {
       })
       .catch(ex => {
         agent.add("Whoops, something went wrong!");
-        console.log("Something is really wrong", error);
+        console.log("Something is really wrong", ex);
       });
       
 
