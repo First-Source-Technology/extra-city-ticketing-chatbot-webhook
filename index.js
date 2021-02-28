@@ -267,18 +267,14 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function processPayment(agent) {
-    var firstname = agent.context.get("capture-fullname").parameters.firstname;
-    var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    var person = agent.context.get("capture-fullname").parameters.person;
-    var phone = agent.context.get("confirm-ticket").parameters.phoneNumber;
-    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
-    var travelTo = agent.context.get("capture-date").parameters.travelTo;
-    var travelDate = agent.context.get("capture-schedule").parameters[
-      "travel-date"
-    ];
-    var travelTime = agent.context.get("confirm-booking").parameters[
-      "travel-time"
-    ];
+    var firstname = agent.parameters.firstname;
+    var lastname = agent.parameters.lastname;
+    var person = agent.context.parameters.person;
+    var phone = agent.parameters.phoneNumber;
+    var travelFrom = agent.parameters.travelFrom;
+    var travelTo = agent.parameters.travelTo;
+    var travelDate = agent.parameters["travel-date"];
+    var travelTime = agent.parameters["travel-time"];
 
     // save human readable date
     const dateObject = new Date();
@@ -296,13 +292,10 @@ app.post("/booking", express.json(), (req, res) => {
 
     //payments
     const invoiceNumber = generateInvoiceNumber();
-    var payEmail = agent.context.get("paymentEmail-followup").parameters.email;
-    var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
-      "phone-number"
-    ];
-    var payOption = agent.context.get("paymentMobileNumber-followup").parameters
-      .paymentChoice;
-    var amount = agent.context.get("paymentAmount-followup").parameters.amount;
+    var payEmail = agent.parameters.email;
+    var payPhone = agent.parameters["phone-number"];
+    var payOption = agent.parameters.payOption;
+    var amount = agent.parameters.amount;
 
     var paynow_id = process.env.INTEGRATION_ID;
     var paynow_key = process.env.INTEGRATION_KEY;
