@@ -236,6 +236,13 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   //payment functions
+  function paymentEmail(agent) {
+    agent.add("May we have your email address?");
+  }
+
+  function paymentMobile(agent) {
+    agent.add("May we your phone number. \n\nFormat: 07XXXXXXXX");
+  }
 
   //finished
   function done(agent) {
@@ -292,6 +299,10 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("issuedTo", issuedTo);
   intentMap.set("somethingNice", somethingNice);
   intentMap.set("somethingCrazy", somethingCrazy);
+
+  //payments
+  intentMap.set("paymentEmail", paymentEmail);
+  intentMap.set("paymentMobile", paymentMobile);
 
   agent.handleRequest(intentMap);
 });
