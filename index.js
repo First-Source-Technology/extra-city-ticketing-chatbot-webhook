@@ -10,6 +10,8 @@ const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
 
+const { v4: uuidv4 } = require("uuid");
+
 moment().format("LLL");
 
 // We need to require firebase-admin so we can access firebase
@@ -287,8 +289,8 @@ app.post("/booking", express.json(), (req, res) => {
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     //ticket // IDEA:
+    var id = uuidv4();
     var ticketId = ticketID();
-    var id = uuid();
 
     //payments
     const invoiceNumber = generateInvoiceNumber();
