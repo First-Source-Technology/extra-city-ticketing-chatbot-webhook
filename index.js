@@ -226,7 +226,7 @@ app.post("/booking", express.json(), (req, res) => {
         // dateOfTravel: travelDate,
         momentTravelDate: momentTravelDate,
         timeOfTravel: travelTime,
-        time: dateObject,
+        bookingTime: dateObject,
         ticketId: ticketId,
       })
       .then(
