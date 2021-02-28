@@ -414,7 +414,7 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("paymentEmail", paymentEmail);
   intentMap.set("paymentMobileNumber", paymentMobileNumber);
   intentMap.set("paymentAmount", paymentAmount);
-  intent.set("paymentConfirmation - yes", processPayment);
+  intentMap.set("paymentConfirmation - yes", processPayment);
 
   agent.handleRequest(intentMap);
 });
