@@ -8,6 +8,7 @@ const app = express();
 const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
+const { Paynow } = require("paynow");
 
 moment().format("LLL");
 
@@ -292,16 +293,67 @@ app.post("/booking", express.json(), (req, res) => {
 
     //ticket // IDEA:
     var ticketId = ticketID();
+    var id = uuid();
 
     //payments
+    const invoiceNumber = generateInvoiceNumber();
     var payEmail = agent.context.get("paymentEmail-followup").parameters.email;
     var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
       "phone-number"
     ];
-    var paymentOption = agent.context.get("paymentChoice-followup").parameters
-      .paymentChoice;
+    var payOption = agent.context.get("paymentMobileNumber-followup")
+      .parameters.paymentChoice;
     var amount = agent.context.get("paymentAmount-followup").parameters.amount;
-  }
+
+    var INTEGRATION_ID = "11700";
+    var INTEGRATION_KEY = "f9e7af51-2b09-4803-a115-44124734ec3e";
+    let paynow = new Paynow(INTEGRATION_ID, INTEGRATION_KEY);
+    
+    let payment = paynow.createPayment(invoiceNumber, email);
+    payment.add("Booking", amount);
+    paynow
+      .sendMobile(payment, payPhone, payOption)
+      .then(function (response) {
+        if (response.success) {
+          agent.add(
+            "You have successfully paid $" +
+            amount.amount +
+            ". Your invoice number is " +
+            invoiceNumber
+          );
+          var paynowReference = response.pollUrl;
+         
+
+          //save to db
+          return db
+            .collection("Booking")
+            .add({
+              id: id,
+              invoiceNumber: invoiceNumber,
+              fullname: fullname,
+              person: person,
+              phone: phone,
+              payPhone: payPhone,
+              email: payEmail,
+              payOption: payOption,
+              date: momentTravelDate,
+              timestamp: dateObject,
+              ticketId: ticketId,
+              trip: trip,
+              travelTime: travelTime,
+              paynowReference: paynowReference,
+            })
+            .then(ref => console.log("Success"), agent.add("Success"));
+        } else {
+          agent.add("Whoops, something went wrong!");
+          console.log(response.error);
+        }
+      })
+      .catch(ex => {
+        agent.add("Whoops, something went wrong!");
+        console.log("Something is really wrong", error);
+      });
+      
 
   //finished
   function done(agent) {
