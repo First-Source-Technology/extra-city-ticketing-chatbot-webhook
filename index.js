@@ -244,6 +244,58 @@ app.post("/booking", express.json(), (req, res) => {
     agent.add("May we your phone number. \n\nFormat: 07XXXXXXXX");
   }
 
+  function paymentAmount(agent) {
+    agent.add("Please enter the amount you're paying in ZWL e.g 800");
+  }
+
+  function generateInvoiceNumber() {
+    //invoice number format INV-yymmdd-count INV-20210218-009
+    //get date
+    const date = new Date();
+    const dateString = formatDate(date);
+    var lastNumber = 0;
+
+    //var newNumber = (lastNumber + 1).toString();
+    var newNumber = (Math.floor(Math.random() * 1000) + 1).toString();
+    newNumber.length == 1 && (newNumber = "0" + newNumber);
+    newNumber.length == 2 && (newNumber = "0" + newNumber);
+
+    return `INV-${dateString}-${newNumber}`;
+  }
+
+  function processPayment(agent) {
+    const invoiceNumber = generateInvoiceNumber();
+    var firstname = agent.context.get("capture-fullname").parameters.firstname;
+    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    var person = agent.context.get("capture-fullname").parameters.person;
+    var phone = agent.context.get("confirm-ticket").parameters.phoneNumber;
+    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+    var travelTo = agent.context.get("capture-date").parameters.travelTo;
+    var travelDate = agent.context.get("capture-schedule").parameters[
+      "travel-date"
+    ];
+    var travelTime = agent.context.get("confirm-booking").parameters[
+      "travel-time"
+    ];
+
+    // save human readable date
+    const dateObject = new Date();
+
+    //new Uni Timestamp
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
+
+    //Let's join firstname and lastname
+    var fullname = `${firstname} ${lastname}`;
+    var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
+
+    //ticket // IDEA:
+    var ticketId = ticketID();
+
+    //payments
+    var email = agent.context
+  }
+
+
   //finished
   function done(agent) {
     agent.add(
@@ -303,6 +355,7 @@ app.post("/booking", express.json(), (req, res) => {
   //payments
   intentMap.set("paymentEmail", paymentEmail);
   intentMap.set("paymentMobile", paymentMobile);
+  intentMap.set("paymentAmount", paymentAmount);
 
   agent.handleRequest(intentMap);
 });
