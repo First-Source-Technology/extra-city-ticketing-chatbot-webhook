@@ -310,7 +310,7 @@ app.post("/booking", express.json(), (req, res) => {
     );
     payment.add("Booking", amount);
     paynow
-      .sendMobile(payment, payPhone, payOption)
+      .sendMobile(payment, "0771111111", "ecocash")
       .then(function (response) {
         if (response.success) {
           agent.add(
