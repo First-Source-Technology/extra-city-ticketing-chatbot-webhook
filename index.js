@@ -267,7 +267,6 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function processPayment(agent) {
-    const invoiceNumber = generateInvoiceNumber();
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
     var person = agent.context.get("capture-fullname").parameters.person;
@@ -301,15 +300,15 @@ app.post("/booking", express.json(), (req, res) => {
     var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
       "phone-number"
     ];
-    var payOption = agent.context.get("paymentMobileNumber-followup")
-      .parameters.paymentChoice;
+    var payOption = agent.context.get("paymentMobileNumber-followup").parameters
+      .paymentChoice;
     var amount = agent.context.get("paymentAmount-followup").parameters.amount;
 
     var paynow_id = process.env.INTEGRATION_ID;
     var paynow_key = process.env.INTEGRATION_KEY;
 
     let paynow = new Paynow(paynow_id, paynow_key);
-    
+
     let payment = paynow.createPayment(invoiceNumber, email);
     payment.add("Booking", amount);
     paynow
@@ -318,12 +317,11 @@ app.post("/booking", express.json(), (req, res) => {
         if (response.success) {
           agent.add(
             "You have successfully paid $" +
-            amount.amount +
-            ". Your invoice number is " +
-            invoiceNumber
+              amount.amount +
+              ". Your invoice number is " +
+              invoiceNumber
           );
           var paynowReference = response.pollUrl;
-         
 
           //save to db
           return db
@@ -344,17 +342,17 @@ app.post("/booking", express.json(), (req, res) => {
               travelTime: travelTime,
               paynowReference: paynowReference,
             })
-            .then(ref => console.log("Success"), agent.add("Success"));
+            .then((ref) => console.log("Success"), agent.add("Success"));
         } else {
           agent.add("Whoops, something went wrong!");
           console.log(response.error);
         }
       })
-      .catch(ex => {
+      .catch((ex) => {
         agent.add("Whoops, something went wrong!");
         console.log("Something is really wrong", ex);
       });
-      
+  }
 
   //finished
   function done(agent) {
