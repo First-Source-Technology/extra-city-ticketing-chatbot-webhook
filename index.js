@@ -269,7 +269,7 @@ app.post("/booking", express.json(), (req, res) => {
   function processPayment(agent) {
     var firstname = agent.parameters.firstname;
     var lastname = agent.parameters.lastname;
-    var person = agent.context.parameters.person;
+    // var person = agent.context.parameters.person;
     var phone = agent.parameters.phoneNumber;
     var travelFrom = agent.parameters.travelFrom;
     var travelTo = agent.parameters.travelTo;
@@ -323,7 +323,7 @@ app.post("/booking", express.json(), (req, res) => {
               id: id,
               invoiceNumber: invoiceNumber,
               fullname: fullname,
-              person: person,
+              // person: person,
               phone: phone,
               payPhone: payPhone,
               email: payEmail,
