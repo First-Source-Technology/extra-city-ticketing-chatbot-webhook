@@ -304,7 +304,10 @@ app.post("/booking", express.json(), (req, res) => {
 
     let paynow = new Paynow(paynow_id, paynow_key);
 
-    let payment = paynow.createPayment(invoiceNumber, payEmail);
+    let payment = paynow.createPayment(
+      invoiceNumber,
+      "andilembele020@gmail.com"
+    );
     payment.add("Booking", amount);
     paynow
       .sendMobile(payment, payPhone, payOption)
