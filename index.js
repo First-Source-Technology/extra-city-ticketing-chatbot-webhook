@@ -210,7 +210,7 @@ app.post("/booking", express.json(), (req, res) => {
     // Telegram
     agent.add(
       `TICKET BOOKING CONFIRMATION \nFULL NAME: ${
-        fullname || person
+        fullname || person.name
       } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nTRAVEL DATE: ${momentTravelDate} \nTRAVEL TIME: ${travelTime} \nTICKET ID: ${ticketId} \n\nSafe Travel with Extracity Luxury`
     );
 
@@ -223,8 +223,9 @@ app.post("/booking", express.json(), (req, res) => {
         person: person,
         phone: phone,
         trip: trip,
-        // dateOfTravel: travelDate,
-        momentTravelDate: momentTravelDate,
+        travelFrom: travelFrom,
+        travelTo: travelTo,
+        travelDate: momentTravelDate,
         timeOfTravel: travelTime,
         bookingTime: dateObject,
         ticketId: ticketId,
@@ -299,8 +300,8 @@ app.post("/booking", express.json(), (req, res) => {
     var payOption = agent.parameters.payOption;
     var amount = agent.parameters.amount;
 
-    var paynow_id = process.env.INTEGRATION_ID;
-    var paynow_key = process.env.INTEGRATION_KEY;
+    let paynow_id = process.env.INTEGRATION_ID;
+    let paynow_key = process.env.INTEGRATION_KEY;
 
     let paynow = new Paynow(paynow_id, paynow_key);
 
