@@ -317,7 +317,7 @@ app.post("/booking", express.json(), (req, res) => {
     var accessKeyId = process.env.INTEGRATION_ID;
     var secretAccessKey = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow(accessKeyId, secretAccessKey);
+    let paynow = new Paynow("11700", "f9e7af51-2b09-4803-a115-44124734ec3e");
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
@@ -432,5 +432,4 @@ app.post("/booking", express.json(), (req, res) => {
 app.listen(port, ip, () => {
   console.log(`Server is live at port ${port}`);
   console.log("Press Ctrl+C to abort connection");
-  console.log(`IP Address: ${ip}`);
 });
