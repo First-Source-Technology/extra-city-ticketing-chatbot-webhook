@@ -137,7 +137,7 @@ app.post("/booking", express.json(), (req, res) => {
     var person = agent.context.get("capture-fullname").parameters.person;
 
     var name = `${firstname} ${lastname}`;
-    if (name == null || name == "" || person == null) {
+    if (name == null || name == "" || person.name == null) {
       agent.add(
         "The name of the one travelling is required. The section cannot be empty."
       );
@@ -156,7 +156,7 @@ app.post("/booking", express.json(), (req, res) => {
     num.length == 1 && (num = "0" + num);
     num.length == 2 && (num = "0" + num);
 
-    return `ExC-${dateString}-${num}`;
+    return `Extra City-${dateString}-${num}`;
   }
 
   //format date
