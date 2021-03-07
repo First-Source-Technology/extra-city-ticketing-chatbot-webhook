@@ -273,7 +273,7 @@ app.post("/booking", express.json(), (req, res) => {
     return `INV-${dateString}-${newNumber}`;
   }
 
-  function processPayment(agent) {
+  async function processPayment(agent) {
     var firstname = agent.parameters.firstname;
     var lastname = agent.parameters.lastname;
     // var person = agent.context.parameters.person;
@@ -317,12 +317,12 @@ app.post("/booking", express.json(), (req, res) => {
     var accessKeyId = process.env.INTEGRATION_ID;
     var secretAccessKey = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow("11700", "f9e7af51-2b09-4803-a115-44124734ec3e");
+    let paynow = new Paynow(accessKeyId, secretAccessKey);
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
     paynow
-      .sendMobile(payment, payPhone, payOption)
+      .sendMobile(payment, payPhone, payOption.toLowerCase())
       .then(function (response) {
         if (response.success) {
           agent.add(
