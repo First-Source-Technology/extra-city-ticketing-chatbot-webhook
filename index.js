@@ -39,6 +39,9 @@ db.settings({ ignoreUndefinedProperties: true });
 //Let's define port number
 const port = process.env.PORT || 8000;
 
+//ip
+const ip = process.env.IP;
+
 app.get("/", (req, res) => {
   res.send("Your application is running with no issues.");
 });
@@ -422,7 +425,8 @@ app.post("/booking", express.json(), (req, res) => {
   agent.handleRequest(intentMap);
 });
 
-app.listen(port, () => {
+app.listen(port, ip, () => {
   console.log(`Server is live at port ${port}`);
   console.log("Press Ctrl+C to abort connection");
+  console.log(`IP Address: ${ip}`);
 });
