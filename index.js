@@ -134,10 +134,10 @@ app.post("/booking", express.json(), (req, res) => {
   function askTravellersPhone(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    var person = agent.context.get("capture-fullname").parameters.person;
+    // var person = agent.context.get("capture-fullname").parameters.person;
 
     var name = `${firstname} ${lastname}`;
-    if (name == null || name == "" || person.name == null) {
+    if (name == null || name == "") {
       agent.add(
         "The name of the one travelling is required. The section cannot be empty."
       );
