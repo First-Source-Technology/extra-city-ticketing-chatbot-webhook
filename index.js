@@ -9,6 +9,7 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
+require("dotenv").config();
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -305,13 +306,10 @@ app.post("/booking", express.json(), (req, res) => {
 
     let paynow = new Paynow(paynow_id, paynow_key);
 
-    let payment = paynow.createPayment(
-      invoiceNumber,
-      "andilembele020@gmail.com"
-    );
+    let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
     paynow
-      .sendMobile(payment, "0771111111", "ecocash")
+      .sendMobile(payment, payPhone, payOption)
       .then(function (response) {
         if (response.success) {
           agent.add(
