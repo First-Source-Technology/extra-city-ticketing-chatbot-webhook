@@ -9,7 +9,7 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
-require("dotenv").config();
+// require("dotenv").config();
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -307,15 +307,10 @@ app.post("/booking", express.json(), (req, res) => {
     // let paynow_id = process.env.INTEGRATION_ID;
     // let paynow_key = process.env.INTEGRATION_KEY;
 
-    // let server = {
-    //   accessKeyId: process.env.INTEGRATION_ID,
-    //   secretAccessKey: process.env.INTEGRATION_KEY,
-    // };
+    var accessKeyId = process.env.INTEGRATION_ID;
+    var secretAccessKey = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow(
-      process.env.INTEGRATION_ID,
-      process.env.INTEGRATION_KEY
-    );
+    let paynow = new Paynow(accessKeyId, secretAccessKey);
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
