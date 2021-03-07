@@ -296,10 +296,13 @@ app.post("/booking", express.json(), (req, res) => {
 
     //payments
     const invoiceNumber = generateInvoiceNumber();
-    var payEmail = agent.parameters.email;
-    var payPhone = agent.parameters["phone-number"];
-    var payOption = agent.parameters.payOption;
-    var amount = agent.parameters.amount;
+    var payEmail = agent.context.get("paymentEmail-followup").parameters.email;
+    var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
+      "phone-number"
+    ];
+    var payOption = agent.context.get("paymentChoice-followup").parameters
+      .payOption;
+    var amount = agent.context.get("paymentAmount-followup").parameters.amount;
 
     let paynow_id = process.env.INTEGRATION_ID;
     let paynow_key = process.env.INTEGRATION_KEY;
