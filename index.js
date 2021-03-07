@@ -255,7 +255,21 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function paymentAmount(agent) {
+    var payEmail = agent.context.get("paymentChoice-followup").parameters[
+      "email"
+    ];
+    var payPhone = agent.context.get("paymentAmount-followup").parameters[
+      "phone-number"
+    ];
+    var payOption = agent.context.get("paymentMobileNumber-followup").parameters
+      .payOption;
+
     agent.add("Please enter the amount you're paying in ZWL e.g 800");
+
+    //testing
+    console.log(
+      `Email: ${payEmail} \nPhone: ${payPhone} \nPayment Option: ${payOption}`
+    );
   }
 
   function generateInvoiceNumber() {
@@ -299,13 +313,16 @@ app.post("/booking", express.json(), (req, res) => {
 
     //payments
     const invoiceNumber = generateInvoiceNumber();
-    var payEmail = agent.context.get("paymentChoice-followup").parameters.email;
+    var payEmail = agent.context.get("paymentChoice-followup").parameters[
+      "email"
+    ];
     var payPhone = agent.context.get("paymentAmount-followup").parameters[
       "phone-number"
     ];
     var payOption = agent.context.get("paymentMobileNumber-followup").parameters
       .payOption;
-    var amount = agent.context.get("paymentConfirmation-followup").parameters.amount;
+    var amount = agent.context.get("paymentConfirmation-followup").parameters
+      .amount;
 
     // let paynow_id = process.env.INTEGRATION_ID;
     // let paynow_key = process.env.INTEGRATION_KEY;
