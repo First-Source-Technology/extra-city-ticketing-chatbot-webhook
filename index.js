@@ -312,7 +312,7 @@ app.post("/booking", express.json(), (req, res) => {
       secretAccessKey: process.env.INTEGRATION_KEY,
     };
 
-    let paynow = new Paynow(server.accessKeyId, server.INTEGRATION_KEY);
+    let paynow = new Paynow(server.accessKeyId, server.secretAccessKey);
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
