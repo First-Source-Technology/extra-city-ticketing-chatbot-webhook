@@ -304,10 +304,15 @@ app.post("/booking", express.json(), (req, res) => {
       .payOption;
     var amount = agent.context.get("paymentAmount-followup").parameters.amount;
 
-    let paynow_id = process.env.INTEGRATION_ID;
-    let paynow_key = process.env.INTEGRATION_KEY;
+    // let paynow_id = process.env.INTEGRATION_ID;
+    // let paynow_key = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow(paynow_id, paynow_key);
+    let server = {
+      accessKeyId: process.env.INTEGRATION_ID,
+      secretAccessKey: process.env.INTEGRATION_KEY,
+    };
+
+    let paynow = new Paynow(server.accessKeyId, server.INTEGRATION_KEY);
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
     payment.add("Booking", amount);
