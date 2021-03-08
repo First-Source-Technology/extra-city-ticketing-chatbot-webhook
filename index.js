@@ -317,51 +317,51 @@ app.post("/booking", express.json(), (req, res) => {
     var accessKeyId = process.env.INTEGRATION_ID;
     var secretAccessKey = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow("11700", "f9e7af51-2b09-4803-a115-44124734ec3e");
+    let paynow = new Paynow(`${accessKeyId}, ${secretAccessKey}`);
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
-    payment.add("Booking", amount);
-    paynow
-      .sendMobile(payment, payPhone, payOption.toLowerCase())
-      .then(function (response) {
-        if (response.success) {
-          agent.add(
-            "You have successfully paid $" +
-              amount.amount +
-              ". Your invoice number is " +
-              invoiceNumber
-          );
-          var paynowReference = response.pollUrl;
+    payment.add("Booking", parseFloat(amount.amount));
 
-          //save to db
-          return db
-            .collection("Booking")
-            .add({
-              id: id,
-              invoiceNumber: invoiceNumber,
-              fullname: fullname,
-              // person: person,
-              phone: phone,
-              payPhone: payPhone,
-              email: payEmail,
-              payOption: payOption,
-              date: momentTravelDate,
-              timestamp: dateObject,
-              ticketId: ticketId,
-              trip: trip,
-              travelTime: travelTime,
-              paynowReference: paynowReference,
-            })
-            .then((ref) => console.log("Success"), agent.add("Success"));
-        } else {
-          agent.add("Whoops, something went wrong!");
-          console.log(response.error);
-        }
-      })
-      .catch((ex) => {
-        agent.add("Whoops, something went wrong!");
-        console.log("Something is really wrong", ex);
-      });
+    var response = await paynow.sendMobile(
+      payment,
+      payPhone,
+      payOption.toLowerCase()
+    );
+    if (response.success) {
+      var paynowReference = response.pollUrl;
+      agent.add(
+        "You have successfully paid $" +
+          amount.amount +
+          ". Your invoice number is " +
+          invoiceNumber +
+          ". Paynow reference is " +
+          paynowReference
+      );
+
+      //save to db
+      return db
+        .collection("Booking")
+        .add({
+          id: id,
+          invoiceNumber: invoiceNumber,
+          fullname: fullname,
+          // person: person,
+          phone: phone,
+          payPhone: payPhone,
+          email: payEmail,
+          payOption: payOption,
+          date: momentTravelDate,
+          timestamp: dateObject,
+          ticketId: ticketId,
+          trip: trip,
+          travelTime: travelTime,
+          paynowReference: paynowReference,
+        })
+        .then((ref) => console.log("Success"), agent.add("Success"));
+    } else {
+      agent.add("Whoops, something went wrong!");
+      console.log(response.error);
+    }
   }
 
   //finished
