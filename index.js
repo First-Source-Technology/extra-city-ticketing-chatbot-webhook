@@ -374,11 +374,11 @@ app.post("/booking", express.json(), (req, res) => {
       });
 
     //finished
-    function done(agent) {
-      agent.add(
-        "Thank you for using Extracity Luxury Coaches. We hope to see you again."
-      );
-    }
+    // function done(agent) {
+    //   agent.add(
+    //     "Thank you for using Extracity Luxury Coaches. We hope to see you again."
+    //   );
+    // }
   }
 
   // intentMaps are more like a register for all functions
@@ -391,7 +391,7 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("bitOff", bitOff);
   intentMap.set("askTravellersName", askTravellersName);
   intentMap.set("askTravellersPhone", askTravellersPhone);
-  intentMap.set("done", done);
+  // intentMap.set("done", done);
   // intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
   intentMap.set("viewTickets", viewTickets);
