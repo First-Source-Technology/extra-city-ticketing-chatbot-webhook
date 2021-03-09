@@ -245,7 +245,7 @@ app.post("/booking", express.json(), (req, res) => {
 
   //payment functions
   function paymentEmail(agent) {
-    agent.add("May we have your email address?");
+    agent.add("May we have your email address? \n\nFormat: example@gmail.com");
   }
 
   function paymentMobileNumber(agent) {
@@ -300,22 +300,27 @@ app.post("/booking", express.json(), (req, res) => {
     //payments
     const invoiceNumber = generateInvoiceNumber();
 
-    var payPhone = agent.context.get("paymentAmount-followup").parameters[
-      "phone-number"
-    ];
-    var payOption = agent.context.get("paymentMobileNumber-followup").parameters
-      .payOption;
-    var amount = agent.context.get("paymentConfirmation-followup").parameters
-      .amount;
-    var payEmail = agent.context.get("paymentChoice-followup").parameters[
+    var payEmail = agent.context.get("paymentEmail-followup").parameters[
       "email"
     ];
+    var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
+      "phone-number"
+    ];
+    var payOption = agent.context.get("paymentChoice-followup").parameters
+      .payOption;
+    var amount = agent.context.get("paymentAmount-followup").parameters
+      .amount;
 
     // let paynow_id = process.env.INTEGRATION_ID;
     // let paynow_key = process.env.INTEGRATION_KEY;
 
     var accessKeyId = process.env.INTEGRATION_ID;
     var secretAccessKey = process.env.INTEGRATION_KEY;
+
+    //testing
+    console.log(
+      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: ${amount.amount} \nEmail: ${payEmail}`
+    );
 
     let paynow = new Paynow("11735", "4e935649-8467-4022-8009-117cc412e84a");
 
