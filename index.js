@@ -273,7 +273,7 @@ app.post("/booking", express.json(), (req, res) => {
     return `INV-${dateString}-${newNumber}`;
   }
 
-  async function processPayment(agent) {
+  function processPayment(agent) {
     var firstname = agent.parameters.firstname;
     var lastname = agent.parameters.lastname;
     // var person = agent.context.parameters.person;
@@ -317,89 +317,68 @@ app.post("/booking", express.json(), (req, res) => {
     var accessKeyId = process.env.INTEGRATION_ID;
     var secretAccessKey = process.env.INTEGRATION_KEY;
 
-    let paynow = new Paynow(`${accessKeyId}, ${secretAccessKey}`);
+    let paynow = new Paynow("11735", "4e935649-8467-4022-8009-117cc412e84a");
 
     let payment = paynow.createPayment(invoiceNumber, payEmail);
+
     payment.add("Booking", parseFloat(amount.amount));
 
-    var response = await paynow.sendMobile(
-      payment,
-      payPhone,
-      payOption.toLowerCase()
-    );
-    if (response.success) {
-      var paynowReference = response.pollUrl;
-      agent.add(
-        "You have successfully paid $" +
-          amount.amount +
-          ". Your invoice number is " +
-          invoiceNumber +
-          ". Paynow reference is " +
-          paynowReference
-      );
+    paynow
+      .sendMobile(payment, payPhone, payOption)
+      .then((response) => {
+        if (response.success) {
+          let paynowReference = response.pollUrl;
+          let instructions = response.instructions;
 
-      //save to db
-      return db
-        .collection("Booking")
-        .add({
-          id: id,
-          invoiceNumber: invoiceNumber,
-          fullname: fullname,
-          // person: person,
-          phone: phone,
-          payPhone: payPhone,
-          email: payEmail,
-          payOption: payOption,
-          date: momentTravelDate,
-          timestamp: dateObject,
-          ticketId: ticketId,
-          trip: trip,
-          travelTime: travelTime,
-          paynowReference: paynowReference,
-        })
-        .then((ref) => console.log("Success"), agent.add("Success"));
-    } else {
-      agent.add("Whoops, something went wrong!");
-      console.log(response.error);
-    }
-  }
+          console.log(instructions);
 
-  //finished
-  function done(agent) {
-    agent.add(
-      "Thank you for using Extracity Luxury Coaches. We hope to see you again."
-    );
-  }
+          agent.add(
+            "You have successfully paid $" +
+              amount.amount +
+              ". Your invoice number is " +
+              invoiceNumber +
+              ". Paynow reference is " +
+              paynowReference
+          );
 
-  // view all ordered tickets
-  function viewTickets() {
-    agent.add(`We're yet to work on this function`);
-  }
-
-  // reading data from db
-  function issuedTo(agent) {
-    // name
-    var name = agent.context.get("viewTicket").parameters.person;
-    // var surname = agent.context.get("viewTicket").parameters["last-name"];
-    // const phone = agent.context.get("viewTicket").parameters.phone;
-    const docRef = db.collection("tickets").doc(sessionId);
-
-    return docRef
-      .get()
-      .then((doc) => {
-        if (!doc.exists) {
-          agent.add("No data found in the database!");
-          console.log(doc);
+          //save to db
+          return db
+            .collection("Booking")
+            .add({
+              id: id,
+              invoiceNumber: invoiceNumber,
+              fullname: fullname,
+              // person: person,
+              phone: phone,
+              payPhone: payPhone,
+              email: payEmail,
+              payOption: payOption,
+              date: momentTravelDate,
+              timestamp: dateObject,
+              ticketId: ticketId,
+              trip: trip,
+              travelTime: travelTime,
+              paynowReference: paynowReference,
+            })
+            .then(
+              (ref) => console.log("Booking successful"),
+              agent.add("Booking successful")
+            );
         } else {
-          agent.add(doc.data().name);
+          agent.add("Whoops, something went wrong!");
+          console.log(response.error);
         }
-        return Promise.resolve("Read Complete");
       })
-      .catch(() => {
-        agent.add(
-          "Could not retrieve your ticket information from the database"
-        );
+      .catch((ex) => {
+        console.log("Something didn't go quite right. Error: ", ex);
       });
+
+    //finished
+    function done(agent) {
+      agent.add(
+        "Thank you for using Extracity Luxury Coaches. We hope to see you again."
+      );
+    }
   }
 
   // intentMaps are more like a register for all functions
