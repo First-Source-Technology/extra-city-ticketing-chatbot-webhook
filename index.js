@@ -244,26 +244,12 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   //payment functions
-  function paymentEmail(agent) {
-    agent.add("May we have your email address? \n\nFormat: example@gmail.com");
-  }
-
-  function paymentMobileNumber(agent) {
-    agent.add(
-      "May we have your phone number which you'll for mobile transfer. \n\nFormat: 07XXXXXXXX"
-    );
-  }
-
-  function paymentAmount(agent) {
-    agent.add("Please enter the amount you're paying in ZWL e.g 800");
-  }
-
+  //ticket number
   function generateInvoiceNumber() {
     //invoice number format INV-yymmdd-count INV-20210218-009
     //get date
     const date = new Date();
     const dateString = formatDate(date);
-    var lastNumber = 0;
 
     //var newNumber = (lastNumber + 1).toString();
     var newNumber = (Math.floor(Math.random() * 1000) + 1).toString();
@@ -271,6 +257,38 @@ app.post("/booking", express.json(), (req, res) => {
     newNumber.length == 2 && (newNumber = "0" + newNumber);
 
     return `INV-${dateString}-${newNumber}`;
+  }
+
+  function paymentEmail(agent) {
+    agent.add("May we have your email address? \n\nFormat: example@gmail.com");
+
+    agent.end("");
+  }
+
+  function paymentChoice(agent) {
+    agent.add("How will you settle this transaction?");
+    agent.add(new Suggestion("ecocash"));
+    agent.add(new Suggestion("onemoney"));
+    agent.end("");
+  }
+
+  function paymentMobileNumber(agent) {
+    agent.add(
+      "May we have your phone number which you'll for mobile transfer. \n\nFormat: 07XXXXXXXX"
+    );
+    agent.end("");
+  }
+
+  function paymentAmount(agent) {
+    agent.add("Please enter the amount you're paying in ZWL e.g 800");
+    agent.end("");
+  }
+
+  function paymentConfirmation(agent) {
+    agent.add("Confirm payment");
+    agent.add(new Suggestion("Yes"));
+    agent.add(new Suggestion("No"));
+    agent.end("");
   }
 
   function processPayment(agent) {
@@ -326,7 +344,7 @@ app.post("/booking", express.json(), (req, res) => {
 
     //testing
     console.log(
-      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: ${amount.amount} \nEmail: ${email}`
+      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: $${amount.amount} \nEmail: ${email}`
     );
 
     let paynow = new Paynow("11735", "4e935649-8467-4022-8009-117cc412e84a");
@@ -418,7 +436,9 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("paymentEmail", paymentEmail);
   intentMap.set("paymentMobileNumber", paymentMobileNumber);
   intentMap.set("paymentAmount", paymentAmount);
-  intentMap.set("paymentConfirmation - yes", processPayment);
+  intentMap.set("processPayment", processPayment);
+  intentMap.set("paymentChoice", paymentChoice);
+  intentMap.set("paymentConfirmation", paymentConfirmation);
 
   agent.handleRequest(intentMap);
 });
