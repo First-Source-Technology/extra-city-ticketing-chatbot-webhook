@@ -294,42 +294,52 @@ app.post("/booking", express.json(), (req, res) => {
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
 
     //ticket // IDEA:
-    var id = uuidv4();
-    var ticketId = ticketID();
+    const id = uuidv4();
+    const ticketId = ticketID();
 
     //payments
+    // const invoiceNumber = generateInvoiceNumber();
+
+    // const payEmail = agent.context.get("paymentEmail-followup").parameters[
+    //   "email"
+    // ];
+    // const payPhone = agent.context.get("paymentMobileNumber-followup")
+    //   .parameters["phone-number"];
+    // const payOption = agent.context.get("paymentChoice-followup").parameters
+    //   .payOption;
+    // const amount = agent.context.get("paymentAmount-followup").parameters
+    //   .amount;
+
+    //new way
     const invoiceNumber = generateInvoiceNumber();
 
-    var payEmail = agent.context.get("paymentEmail-followup").parameters[
-      "email"
-    ];
-    var payPhone = agent.context.get("paymentMobileNumber-followup").parameters[
-      "phone-number"
-    ];
-    var payOption = agent.context.get("paymentChoice-followup").parameters
-      .payOption;
-    var amount = agent.context.get("paymentAmount-followup").parameters
-      .amount;
+    const email = agent.parameters.email;
+    const payPhone = agent.parameters["phone-number"];
+    const payOption = agent.parameters.payOption;
+    const amount = agent.parameters.amount;
 
     // let paynow_id = process.env.INTEGRATION_ID;
     // let paynow_key = process.env.INTEGRATION_KEY;
 
-    var accessKeyId = process.env.INTEGRATION_ID;
-    var secretAccessKey = process.env.INTEGRATION_KEY;
+    const accessKeyId = process.env.INTEGRATION_ID;
+    const secretAccessKey = process.env.INTEGRATION_KEY;
 
     //testing
     console.log(
-      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: ${amount.amount} \nEmail: ${payEmail}`
+      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: ${amount.amount} \nEmail: ${email}`
     );
 
     let paynow = new Paynow("11735", "4e935649-8467-4022-8009-117cc412e84a");
 
-    let payment = paynow.createPayment(invoiceNumber, payEmail);
+    let payment = paynow.createPayment(invoiceNumber, email);
+
+    let cellAccount = payPhone || "0771111111";
+    let option = payOption || "ecocash";
 
     payment.add("Booking", parseFloat(amount.amount));
 
     paynow
-      .sendMobile(payment, payPhone, payOption)
+      .sendMobile(payment, cellAccount, option)
       .then((response) => {
         if (response.success) {
           let paynowReference = response.pollUrl;
@@ -355,9 +365,9 @@ app.post("/booking", express.json(), (req, res) => {
               fullname: fullname,
               // person: person,
               phone: phone,
-              payPhone: payPhone,
-              email: payEmail,
-              payOption: payOption,
+              payPhone: payPhone || cellAccount,
+              email: email,
+              payOption: payOption || option,
               date: momentTravelDate,
               timestamp: dateObject,
               ticketId: ticketId,
