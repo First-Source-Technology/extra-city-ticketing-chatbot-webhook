@@ -134,14 +134,16 @@ app.post("/booking", express.json(), (req, res) => {
   function askTravellersPhone(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    // var person = agent.context.get("capture-fullname").parameters.person;
+    var person = agent.context.get("confirm-booking").parameters.person;
 
     var name = `${firstname} ${lastname}`;
-    if (name == null || name == "") {
+    if (name === null) {
       agent.add(
         "The name of the one travelling is required. The section cannot be empty."
       );
     } else {
+      console.log(name);
+      console.log(person.person);
       agent.add("May I have your mobile phone number. \n\nFormat: 0776814472");
     }
   }
@@ -285,6 +287,9 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function paymentConfirmation(agent) {
+    //testing
+    const amount = agent.parameters.amount;
+    console.log("Amount: $" + amount.amount);
     agent.add("Confirm payment");
     agent.add(new Suggestion("Yes"));
     agent.add(new Suggestion("No"));
