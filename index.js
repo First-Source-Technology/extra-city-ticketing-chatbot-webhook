@@ -394,8 +394,8 @@ app.post("/booking", express.json(), (req, res) => {
   // intentMap.set("done", done);
   // intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
-  intentMap.set("viewTickets", viewTickets);
-  intentMap.set("issuedTo", issuedTo);
+  // intentMap.set("viewTickets", viewTickets);
+  // intentMap.set("issuedTo", issuedTo);
   intentMap.set("somethingNice", somethingNice);
   intentMap.set("somethingCrazy", somethingCrazy);
 
