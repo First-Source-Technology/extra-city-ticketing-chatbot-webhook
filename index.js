@@ -71,14 +71,17 @@ app.post("/booking", express.json(), (req, res) => {
     agent.add(
       `If you are driving down the road and pass a field with hay bales laying in it, point at the field and yell 'Hey'.`
     );
+    agent.end("");
   }
 
   function askName(agent) {
     agent.add("I am an AI assistant, you can call me Lynx");
+    agent.end("");
   }
 
   function bitOff(agent) {
     agent.add("That's what I'm trying to figure out...");
+    agent.end("");
   }
 
   //let's get the time right
@@ -112,11 +115,15 @@ app.post("/booking", express.json(), (req, res) => {
         `On what date would you like to travel? \n\nExample: 30 January 2021 or next week Thursday`
       );
     }
+
+    agent.end("");
   }
 
   // Get Traveller's Name
   function askTravellersName(agent) {
     agent.add("May I have your first name and surname to finish booking?");
+
+    agent.end("");
   }
 
   //Get Traveller's Phone
@@ -132,9 +139,10 @@ app.post("/booking", express.json(), (req, res) => {
       );
     } else {
       console.log(name);
-      console.log(person.person);
       agent.add("May I have your mobile phone number. \n\nFormat: 0776814472");
     }
+
+    agent.end("");
   }
 
   // ticket id function
@@ -252,26 +260,29 @@ app.post("/booking", express.json(), (req, res) => {
 
   function askEmailAddress(agent) {
     agent.add("May I have your email address. \n\nFormat andilem@yahoo.com");
+    agent.end("");
   }
 
   function askPaymentMethod(agent) {
-    agent.context.set({
-      name: "captured-email",
-      lifespan: 5,
-      parameters: {
-        email: agent.query,
-      },
-    });
+    // agent.context.set({
+    //   name: "captured-email",
+    //   lifespan: 5,
+    //   parameters: {
+    //     email: agent.query,
+    //   },
+    // });
 
     agent.add("How will you settle this transaction?");
     agent.add(new Suggestion("EcoCash"));
     agent.add(new Suggestion("OneMoney"));
+    agent.end("");
   }
 
   function askMobileMoneyNumber(agent) {
     agent.add(
       "May I have your mobile money account number? example; 07XXXXXXXX"
     );
+    agent.end("");
   }
 
   async function checkPaymentStatus(agent) {
@@ -350,7 +361,7 @@ app.post("/booking", express.json(), (req, res) => {
 
     // payment
     var email = agent.parameters.email;
-    var paymentMethod = agent.parameters.payOption;
+    var paymentMethod = agent.parameters.paymentMethod;
     var paymentAccount = agent.parameters.paymentAccount;
 
     // save human readable date
@@ -529,12 +540,12 @@ app.post("/booking", express.json(), (req, res) => {
 
   //payments
   intentMap.set("askEmailAddress", askEmailAddress);
-  intentMap.set("paymentMobileNumber", askMobileMoneyNumber);
-  intentMap.set("paymentAmount", paymentAmount);
-  intentMap.set("processPayment", processPayment);
   intentMap.set("askPaymentMethod", askPaymentMethod);
-  intentMap.set("checkPaymentStatus", checkPaymentStatus);
+  intentMap.set("paymentMobileNumber", askMobileMoneyNumber);
+  // intentMap.set("paymentAmount", paymentAmount);
   intentMap.set("paymentConfirmation", paymentConfirmation);
+  intentMap.set("processPayment", processPayment);
+  intentMap.set("checkPaymentStatus", checkPaymentStatus);
 
   agent.handleRequest(intentMap);
 });
