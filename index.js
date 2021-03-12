@@ -268,7 +268,7 @@ app.post("/booking", express.json(), (req, res) => {
     agent.add(new Suggestion("OneMoney"));
   }
 
-  function askPaymentAccount(agent) {
+  function askMobileMoneyNumber(agent) {
     agent.add(
       "May I have your mobile money account number? example; 07XXXXXXXX"
     );
@@ -303,6 +303,7 @@ app.post("/booking", express.json(), (req, res) => {
     ) {
       agent.add(
         `You have successfully booked your ticket! \r\n` +
+          `Poll URL: ${pollUrl} \r\n` +
           `TICKET ID: ${ticketID} \r\n` +
           `AMOUNT: ZWL$${amount.amount} \r\n` +
           `TRIP: ${trip} \r\n` +
@@ -432,29 +433,41 @@ app.post("/booking", express.json(), (req, res) => {
 
     payment.add(`Booking(${trip})`, parseFloat(amount.amount));
 
-    response = await paynow
-      .sendMobile(payment, paymentAccount, paymentMethod.toLowerCase());
-      
+    response = await paynow.sendMobile(
+      payment,
+      paymentAccount,
+      paymentMethod.toLowerCase()
+    );
+
     if (response.success) {
       if (response.success) {
         let paynowReference = response.pollUrl;
 
-        agent.add("A popup will appear, enter your PIN number to commplete the payment. After making your payment, click CHECK PAYMENT STATUS");
+        agent.add(
+          "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
+        );
 
         agent.add(new Suggestion("CHECK PAYMENT STATUS"));
         agent.context.set("capture_payment_status_information", 5, {
-          "pollUrl": paynowReference,
+          "First Name": firstname,
+          "Last Name": lastname,
+          Person: person,
+          pollUrl: paynowReference,
           "Ticket ID": ticketId,
-          "Amount": amount,
-          "Trip": trip,
-          "Date": momentTravelDate,
+          Amount: amount,
+          Trip: trip,
+          Date: momentTravelDate,
           "Booking Time": time,
-          "Phone Number": phone
+          "Travel Time": travelTime,
+          "Phone Number": phone,
+          "Date Object": dateObject,
+          "Payment Method": paymentMethod,
+          "Payment Account Number": paymentAccount,
+          Email: email,
         });
 
         return;
 
-    
         //save to db
         // return db
         //   .collection("Booking")
@@ -515,11 +528,12 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("somethingCrazy", somethingCrazy);
 
   //payments
-  intentMap.set("paymentEmail", paymentEmail);
-  intentMap.set("paymentMobileNumber", paymentMobileNumber);
+  intentMap.set("askEmailAddress", askEmailAddress);
+  intentMap.set("paymentMobileNumber", askMobileMoneyNumber);
   intentMap.set("paymentAmount", paymentAmount);
   intentMap.set("processPayment", processPayment);
-  intentMap.set("paymentChoice", paymentChoice);
+  intentMap.set("askPaymentMethod", askPaymentMethod);
+  intentMap.set("checkPaymentStatus", checkPaymentStatus);
   intentMap.set("paymentConfirmation", paymentConfirmation);
 
   agent.handleRequest(intentMap);
