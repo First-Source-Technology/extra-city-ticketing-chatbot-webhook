@@ -264,13 +264,13 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function askPaymentMethod(agent) {
-    // agent.context.set({
-    //   name: "captured-email",
-    //   lifespan: 5,
-    //   parameters: {
-    //     email: agent.query,
-    //   },
-    // });
+    agent.context.set({
+      name: "backend-captured-email",
+      lifespan: 6,
+      parameters: {
+        email: agent.query,
+      },
+    });
 
     agent.add("How will you settle this transaction?");
     agent.add(new Suggestion("EcoCash"));
@@ -282,6 +282,16 @@ app.post("/booking", express.json(), (req, res) => {
     agent.add(
       "May I have your mobile money account number? example; 07XXXXXXXX"
     );
+    agent.end("");
+  }
+
+  function paymentConfirmation(agent) {
+    //testing
+    // const amount = agent.parameters.amount;
+    // console.log("Amount: $" + amount.amount);
+    agent.add("Confirm payment");
+    agent.add(new Suggestion("Yes"));
+    agent.add(new Suggestion("No"));
     agent.end("");
   }
 
@@ -324,7 +334,7 @@ app.post("/booking", express.json(), (req, res) => {
       );
     } else {
       if (
-        status == "cancelled" ||
+        status === "cancelled" ||
         status === "refunded" ||
         status === "disputed"
       ) {
@@ -337,16 +347,6 @@ app.post("/booking", express.json(), (req, res) => {
         agent.add("You have not completed your payment!");
       }
     }
-  }
-
-  function paymentConfirmation(agent) {
-    //testing
-    const amount = agent.parameters.amount;
-    console.log("Amount: $" + amount.amount);
-    agent.add("Confirm payment");
-    agent.add(new Suggestion("Yes"));
-    agent.add(new Suggestion("No"));
-    agent.end("");
   }
 
   async function processPayment(agent) {
@@ -541,7 +541,7 @@ app.post("/booking", express.json(), (req, res) => {
   //payments
   intentMap.set("askEmailAddress", askEmailAddress);
   intentMap.set("askPaymentMethod", askPaymentMethod);
-  intentMap.set("paymentMobileNumber", askMobileMoneyNumber);
+  intentMap.set("askMobileMoneyNumber", askMobileMoneyNumber);
   // intentMap.set("paymentAmount", paymentAmount);
   intentMap.set("paymentConfirmation", paymentConfirmation);
   intentMap.set("processPayment", processPayment);
