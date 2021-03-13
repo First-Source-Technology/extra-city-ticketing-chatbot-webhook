@@ -20,7 +20,7 @@ var admin = require("firebase-admin");
 
 var serviceAccount = require("./config/extracitywebhook-firebase-adminsdk-1eeft-734192acdb.json");
 const { default: paynow } = require("paynow/dist/paynow");
-const { response } = require("express");
+const { response, response } = require("express");
 const { time } = require("uniqid");
 
 // Use a try catch so we can log errors
@@ -315,8 +315,8 @@ app.post("/booking", express.json(), (req, res) => {
       process.env.PAYNOW_INTEGRATION_ID,
       process.env.PAYNOW_INTEGRATION_KEY
     );
-
-    let response = await response.status;
+    let response = await response.pollTransaction(pollUrl);
+    let status = await response.status;
     if (
       status === "paid" ||
       status === "awaiting delivery" ||
@@ -328,7 +328,7 @@ app.post("/booking", express.json(), (req, res) => {
           `TICKET ID: ${ticketID} \r\n` +
           `AMOUNT: ZWL$${amount.amount} \r\n` +
           `TRIP: ${trip} \r\n` +
-          `DATE: ${trip} \r\n` +
+          `DATE: ${date} \r\n` +
           `TIME: ${time} \r\n` +
           `PHONE: ${phone} \r\n`
       );
