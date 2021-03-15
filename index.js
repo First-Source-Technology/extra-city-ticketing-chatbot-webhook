@@ -20,8 +20,8 @@ var admin = require("firebase-admin");
 
 var serviceAccount = require("./config/extracitywebhook-firebase-adminsdk-1eeft-734192acdb.json");
 const { default: paynow } = require("paynow/dist/paynow");
-const { response, response } = require("express");
-const { time } = require("uniqid");
+// const { response, response } = require("express");
+// const { time } = require("uniqid");
 
 // Use a try catch so we can log errors
 try {
@@ -352,7 +352,7 @@ app.post("/booking", express.json(), (req, res) => {
   async function processPayment(agent) {
     var firstname = agent.parameters.firstname;
     var lastname = agent.parameters.lastname;
-    var person = agent.context.parameters.person;
+    var person = agent.parameters.person;
     var phone = agent.parameters.phoneNumber;
     var travelFrom = agent.parameters.travelFrom;
     var travelTo = agent.parameters.travelTo;
@@ -363,6 +363,9 @@ app.post("/booking", express.json(), (req, res) => {
     var email = agent.parameters.email;
     var paymentMethod = agent.parameters.paymentMethod;
     var paymentAccount = agent.parameters.paymentAccount;
+
+    //invoiceNumber
+    var invoiceNumber = generateInvoiceNumber();
 
     // save human readable date
     const dateObject = new Date();
@@ -418,7 +421,7 @@ app.post("/booking", express.json(), (req, res) => {
 
     if (trip in possibleTrips) {
       amount = possibleTrips[trip];
-    } else if (tripReverse in possible_trips) {
+    } else if (tripReverse in possibleTrips) {
       amount = possibleTrips[tripReverse];
     } else {
       amount = 2000.0;
@@ -460,6 +463,7 @@ app.post("/booking", express.json(), (req, res) => {
 
         agent.add(new Suggestion("CHECK PAYMENT STATUS"));
         agent.context.set("capture_payment_status_information", 5, {
+          ID: id,
           "First Name": firstname,
           "Last Name": lastname,
           Person: person,
