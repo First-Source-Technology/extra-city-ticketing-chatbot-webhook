@@ -360,9 +360,16 @@ app.post("/booking", express.json(), (req, res) => {
     var travelTime = agent.parameters["travel-time"];
 
     // payment
-    var email = agent.parameters.email;
-    var paymentMethod = agent.parameters.paymentMethod;
-    var paymentAccount = agent.parameters.paymentAccount;
+    // var email = agent.parameters.email;
+    // var paymentMethod = agent.parameters.paymentMethod;
+    // var paymentAccount = agent.parameters.paymentAccount;
+
+    //payment
+    var email = agent.context.get("askEmailAddress-followup").parameters.email;
+    var paymentMethod = agent.context.get("askPaymentMethod-followup")
+      .parameters.paymentMethod;
+    var paymentAccount = agent.context.get("askMobileMoneyNumber-followup")
+      .parameters.paymentAccount;
 
     //invoiceNumber
     var invoiceNumber = generateInvoiceNumber();
