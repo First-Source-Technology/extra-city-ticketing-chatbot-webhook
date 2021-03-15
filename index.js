@@ -432,7 +432,7 @@ app.post("/booking", express.json(), (req, res) => {
 
     //testing
     console.log(
-      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${payPhone} \nPayment Option: ${payOption} \nAmount: $${amount.amount} \nEmail: ${email}`
+      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${paymentAccount} \nPayment Option: ${paymentMethod} \nEmail: ${email}`
     );
 
     let paynow = new Paynow(
@@ -445,7 +445,7 @@ app.post("/booking", express.json(), (req, res) => {
     // let cellAccount = payPhone || "0771111111";
     // let option = payOption || "ecocash";
 
-    payment.add(`Booking(${trip})`, parseFloat(amount.amount));
+    payment.add(`Booking(${trip})`, amount);
 
     response = await paynow.sendMobile(
       payment,
