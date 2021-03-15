@@ -128,8 +128,12 @@ app.post("/booking", express.json(), (req, res) => {
 
   //Get Traveller's Phone
   function askPhoneNumber(agent) {
-    var firstname = agent.context.get("capture-fullname").parameters.firstname;
-    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    var firstname = agent.context.get("ask-phone-number").parameters[
+      "given-name"
+    ];
+    var lastname = agent.context.get("ask-phone-number").parameters[
+      "last-name"
+    ];
     // var person = agent.context.get("confirm-booking").parameters.person;
 
     var name = `${firstname} ${lastname}`;
@@ -173,20 +177,6 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   //payment functions
-  //ticket number
-  function generateInvoiceNumber() {
-    //invoice number format INV-yymmdd-count INV-20210218-009
-    //get date
-    const date = new Date();
-    const dateString = formatDate(date);
-
-    //var newNumber = (lastNumber + 1).toString();
-    var newNumber = (Math.floor(Math.random() * 1000) + 1).toString();
-    newNumber.length == 1 && (newNumber = "0" + newNumber);
-    newNumber.length == 2 && (newNumber = "0" + newNumber);
-
-    return `INV-${dateString}-${newNumber}`;
-  }
 
   function askEmailAddress(agent) {
     agent.add("May I have your email address. \n\nFormat andilem@yahoo.com");
@@ -281,8 +271,12 @@ app.post("/booking", express.json(), (req, res) => {
 
   // save the user data to the db
   async function confirmationMessage(agent) {
-    var firstname = agent.context.get("capture-fullname").parameters.firstname;
-    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    var firstname = agent.context.get("ask-phone-number").parameters[
+      "given-name"
+    ];
+    var lastname = agent.context.get("ask-phone-number").parameters[
+      "last-name"
+    ];
     // var person = agent.context.get("capture-fullname").parameters.person;
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
     var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
@@ -296,11 +290,11 @@ app.post("/booking", express.json(), (req, res) => {
 
     //payment variables
     var email = agent.context.get("ask-email-address").parameters.email;
-    var paymentMethod = agent.context.get("ask-payment-method").parameters
+    var paymentMethod = agent.context.get("ask-mobile-money-number").parameters
       .paymentMethod;
     var paymentAccount = agent.context.get("confirm-ticket").parameters
       .paymentAccount;
-    var invoiceNumber = generateInvoiceNumber();
+    var invoiceNumber = ticketID();
 
     // save human readable date
     const dateObject = new Date();
@@ -387,26 +381,50 @@ app.post("/booking", express.json(), (req, res) => {
       );
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
-      agent.context.set("capture_payment_status_information", 5, {
-        ID: id,
-        "Full Name": fullname,
-        // "Last Name": lastname,
-        // Person: person,
-        pollUrl: paynowReference,
-        "Ticket ID": ticketId,
-        Amount: amount,
-        Trip: trip,
-        Date: momentTravelDate,
-        "Booking Time": time,
-        "Travel Time": travelTime,
-        "Phone Number": phone,
-        "Date Object": dateObject,
-        "Payment Method": paymentMethod,
-        "Payment Account Number": paymentAccount,
-        Email: email,
-      });
+      // agent.context.set("capture_payment_status_information", 5, {
+      //   ID: id,
+      //   "Full Name": fullname,
+      //   // "Last Name": lastname,
+      //   // Person: person,
+      //   pollUrl: paynowReference,
+      //   "Ticket ID": ticketId,
+      //   Amount: amount,
+      //   Trip: trip,
+      //   Date: momentTravelDate,
+      //   "Booking Time": time,
+      //   "Travel Time": travelTime,
+      //   "Phone Number": phone,
+      //   "Date Object": dateObject,
+      //   "Payment Method": paymentMethod,
+      //   "Payment Account Number": paymentAccount,
+      //   Email: email,
+      // });
 
-      return;
+      return db
+        .collection("reservations")
+        .add({
+          ID: id,
+          "First Name": firstname,
+          Surname: lastname,
+          "Full Name": fullname,
+          pollURL: paynowReference,
+          "Ticket ID": ticketId,
+          Amount: amount,
+          Trip: trip,
+          "Travelling From": travelFrom,
+          "Travelling To": travelTo,
+          "Booking Time": time,
+          "Phone Number": phone,
+          "Payment Method": paymentMethod,
+          "Mobile Money Account": paymentAccount,
+          Email: email,
+          "Travel Time": travelTime,
+          Date: momentTravelDate,
+        })
+        .then(
+          (ref) => console.log("Success"),
+          agent.add("Ticket successfully reserved")
+        );
     } else {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
