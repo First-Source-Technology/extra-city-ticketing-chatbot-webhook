@@ -130,7 +130,7 @@ app.post("/booking", express.json(), (req, res) => {
   function askPhoneNumber(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    var person = agent.context.get("confirm-booking").parameters.person;
+    // var person = agent.context.get("confirm-booking").parameters.person;
 
     var name = `${firstname} ${lastname}`;
     if (name === null) {
@@ -170,76 +170,6 @@ app.post("/booking", express.json(), (req, res) => {
 
     str = y + m + d;
     return str;
-  }
-
-  // save the user data to the db
-  function confirmationMessage(agent) {
-    var firstname = agent.context.get("capture-fullname").parameters.firstname;
-    var lastname = agent.context.get("capture-fullname").parameters.lastname;
-    var person = agent.context.get("capture-fullname").parameters.person;
-    var phone = agent.context.get("confirm-ticket").parameters.phoneNumber;
-    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
-    var travelTo = agent.context.get("capture-date").parameters.travelTo;
-    var travelDate = agent.context.get("capture-schedule").parameters[
-      "travel-date"
-    ];
-    var travelTime = agent.context.get("confirm-booking").parameters[
-      "travel-time"
-    ];
-
-    // save human readable date
-    const dateObject = new Date();
-
-    //new Uni Timestamp
-    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
-
-    //Let's join firstname and lastname
-    var fullname = `${firstname} ${lastname}`;
-    var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
-
-    //ticket // IDEA:
-    var ticketId = ticketID();
-
-    //reservation id
-    // var reservationId = uuidV1();
-
-    //testing
-    console.log(
-      `\n\nNAME: ${
-        fullname || person.name
-      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nDATE: ${travelDate} \nTIME: ${travelTime} \nTicket ID: ${ticketId} \nMoment Time: ${momentTravelDate}`
-    );
-
-    // Telegram
-    agent.add(
-      `TICKET BOOKING CONFIRMATION \nFULL NAME: ${
-        fullname || person.name
-      } \nPHONE NUMBER: ${phone} \nTRIP: ${trip} \nTRAVEL DATE: ${momentTravelDate} \nTRAVEL TIME: ${travelTime} \nTICKET ID: ${ticketId} \n\nSafe Travel with Extracity Luxury`
-    );
-
-    return db
-      .collection("ticketReservation")
-      .add({
-        // firstname: firstname,
-        // lastname: lastname,
-        fullname: fullname,
-        person: person,
-        phone: phone,
-        trip: trip,
-        travelFrom: travelFrom,
-        travelTo: travelTo,
-        travelDate: momentTravelDate,
-        timeOfTravel: travelTime,
-        bookingTime: dateObject,
-        ticketId: ticketId,
-      })
-      .then(
-        (ref) =>
-          //fetching free slots
-          console.log("Ticket successfully reserved"),
-        agent.add(new Suggestion(`Proceed to payment`)),
-        agent.add(new Suggestion(`Cancel`))
-      );
   }
 
   //payment functions
@@ -285,15 +215,15 @@ app.post("/booking", express.json(), (req, res) => {
     agent.end("");
   }
 
-  function paymentConfirmation(agent) {
-    //testing
-    // const amount = agent.parameters.amount;
-    // console.log("Amount: $" + amount.amount);
-    agent.add("Confirm payment");
-    agent.add(new Suggestion("Yes"));
-    agent.add(new Suggestion("No"));
-    agent.end("");
-  }
+  // function paymentConfirmation(agent) {
+  //   //testing
+  //   // const amount = agent.parameters.amount;
+  //   // console.log("Amount: $" + amount.amount);
+  //   agent.add("Confirm payment");
+  //   agent.add(new Suggestion("Yes"));
+  //   agent.add(new Suggestion("No"));
+  //   agent.end("");
+  // }
 
   async function checkPaymentStatus(agent) {
     const pollUrl = agent.context.get("capture_payment_status_information")
@@ -349,29 +279,27 @@ app.post("/booking", express.json(), (req, res) => {
     }
   }
 
-  async function processPayment(agent) {
-    var firstname = agent.parameters.firstname;
-    var lastname = agent.parameters.lastname;
-    var person = agent.parameters.person;
-    var phone = agent.parameters.phoneNumber;
-    var travelFrom = agent.parameters.travelFrom;
-    var travelTo = agent.parameters.travelTo;
-    var travelDate = agent.parameters["travel-date"];
-    var travelTime = agent.parameters["travel-time"];
+  // save the user data to the db
+  async function confirmationMessage(agent) {
+    var firstname = agent.context.get("capture-fullname").parameters.firstname;
+    var lastname = agent.context.get("capture-fullname").parameters.lastname;
+    // var person = agent.context.get("capture-fullname").parameters.person;
+    var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
+    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+    var travelTo = agent.context.get("capture-date").parameters.travelTo;
+    var travelDate = agent.context.get("capture-schedule").parameters[
+      "travel-date"
+    ];
+    var travelTime = agent.context.get("confirm-booking").parameters[
+      "travel-time"
+    ];
 
-    // payment
-    var email = agent.parameters.email;
-    var paymentMethod = agent.parameters.paymentMethod;
-    var paymentAccount = agent.parameters.paymentAccount;
-
-    //payment
-    // var email = agent.context.get("askEmailAddress-followup").parameters.email;
-    // var paymentMethod = agent.context.get("askPaymentMethod-followup")
-    //   .parameters.paymentMethod;
-    // var paymentAccount = agent.context.get("askMobileMoneyNumber-followup")
-    //   .parameters.paymentAccount;
-
-    //invoiceNumber
+    //payment variables
+    var email = agent.context.get("ask-email-address").parameters.email;
+    var paymentMethod = agent.context.get("ask-payment-method").parameters
+      .paymentMethod;
+    var paymentAccount = agent.context.get("confirm-ticket").parameters
+      .paymentAccount;
     var invoiceNumber = generateInvoiceNumber();
 
     // save human readable date
@@ -383,11 +311,9 @@ app.post("/booking", express.json(), (req, res) => {
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
-    var tripReverse = `${travelTo} to ${travelFrom}`;
 
     //ticket // IDEA:
-    const id = uuidv4();
-    const ticketId = ticketID();
+    var ticketId = ticketID();
 
     var amount = 0;
     var possibleTrips = {
@@ -434,10 +360,7 @@ app.post("/booking", express.json(), (req, res) => {
       amount = 2000.0;
     }
 
-    // const accessKeyId = process.env.INTEGRATION_ID;
-    // const secretAccessKey = process.env.INTEGRATION_KEY;
-
-    //testing
+    ///testing
     console.log(
       `Invoice Number: ${invoiceNumber} \nPayment Phone: ${paymentAccount} \nPayment Option: ${paymentMethod} \nEmail: ${email}`
     );
@@ -448,10 +371,6 @@ app.post("/booking", express.json(), (req, res) => {
     );
 
     let payment = paynow.createPayment(ticketId, email);
-
-    // let cellAccount = payPhone || "0771111111";
-    // let option = payOption || "ecocash";
-
     payment.add(`Booking(${trip})`, amount);
 
     response = await paynow.sendMobile(
@@ -461,90 +380,54 @@ app.post("/booking", express.json(), (req, res) => {
     );
 
     if (response.success) {
-      if (response.success) {
-        let paynowReference = response.pollUrl;
+      let paynowReference = response.pollUrl;
 
-        agent.add(
-          "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
-        );
+      agent.add(
+        "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
+      );
 
-        agent.add(new Suggestion("CHECK PAYMENT STATUS"));
-        agent.context.set("capture_payment_status_information", 5, {
-          ID: id,
-          "First Name": firstname,
-          "Last Name": lastname,
-          Person: person,
-          pollUrl: paynowReference,
-          "Ticket ID": ticketId,
-          Amount: amount,
-          Trip: trip,
-          Date: momentTravelDate,
-          "Booking Time": time,
-          "Travel Time": travelTime,
-          "Phone Number": phone,
-          "Date Object": dateObject,
-          "Payment Method": paymentMethod,
-          "Payment Account Number": paymentAccount,
-          Email: email,
-        });
+      agent.add(new Suggestion("CHECK PAYMENT STATUS"));
+      agent.context.set("capture_payment_status_information", 5, {
+        ID: id,
+        "Full Name": fullname,
+        // "Last Name": lastname,
+        // Person: person,
+        pollUrl: paynowReference,
+        "Ticket ID": ticketId,
+        Amount: amount,
+        Trip: trip,
+        Date: momentTravelDate,
+        "Booking Time": time,
+        "Travel Time": travelTime,
+        "Phone Number": phone,
+        "Date Object": dateObject,
+        "Payment Method": paymentMethod,
+        "Payment Account Number": paymentAccount,
+        Email: email,
+      });
 
-        return;
-
-        //save to db
-        // return db
-        //   .collection("Booking")
-        //   .add({
-        //     id: id,
-        //     invoiceNumber: invoiceNumber,
-        //     fullname: fullname,
-        //     // person: person,
-        //     phone: phone,
-        //     payPhone: payPhone || cellAccount,
-        //     email: email,
-        //     payOption: payOption || option,
-        //     date: momentTravelDate,
-        //     timestamp: dateObject,
-        //     ticketId: ticketId,
-        //     trip: trip,
-        //     travelTime: travelTime,
-        //     paynowReference: paynowReference,
-        //   })
-        //   .then(
-        //     (ref) => console.log("Booking successful"),
-        //     agent.add("Booking successful")
-        //   );
-      } else {
-        agent.add("Whoops, something went wrong!");
-        console.log(response.error);
-      }
-      // })
-      // .catch((ex) => {
-      //   console.log("Something didn't go quite right. Error: ", ex);
-      // });
+      return;
+    } else {
+      agent.add("Whoops, something went wrong!");
+      console.log(response.error);
     }
-
-    //finished
-    // function done(agent) {
-    //   agent.add(
-    //     "Thank you for using Extracity Luxury Coaches. We hope to see you again."
-    //   );
-    // }
   }
+
+  // // finished
+  // function done(agent) {
+  //   agent.add(
+  //     "Thank you for using Extracity Luxury Coaches. We hope to see you again."
+  //   );
+  // }
 
   // intentMaps are more like a register for all functions
   var intentMap = new Map();
   intentMap.set("webhookDemo", demo);
-  // intentMap.set("askBookingFrom", askBookingFrom);
-  // intentMap.set("askBookingTo", askBookingTo);
   intentMap.set("askBookingDate", askBookingDate);
   intentMap.set("askName", askName);
   intentMap.set("bitOff", bitOff);
   intentMap.set("askTravellersName", askTravellersName);
   intentMap.set("askPhoneNumber", askPhoneNumber);
-  // intentMap.set("done", done);
-  // intentMap.set("confirmBooking", confirmBooking);
-  // intentMap.set("viewTickets", viewTickets);
-  // intentMap.set("issuedTo", issuedTo);
   intentMap.set("somethingNice", somethingNice);
   intentMap.set("somethingCrazy", somethingCrazy);
 
@@ -553,9 +436,8 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("askPaymentMethod", askPaymentMethod);
   intentMap.set("askMobileMoneyNumber", askMobileMoneyNumber);
   intentMap.set("confirmationMessage", confirmationMessage);
-  // intentMap.set("paymentAmount", paymentAmount);
-  intentMap.set("paymentConfirmation", paymentConfirmation);
-  intentMap.set("processPayment", processPayment);
+  // intentMap.set("paymentConfirmation", paymentConfirmation);
+  // intentMap.set("processPayment", processPayment);
   intentMap.set("checkPaymentStatus", checkPaymentStatus);
 
   agent.handleRequest(intentMap);
