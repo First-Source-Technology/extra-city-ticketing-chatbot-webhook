@@ -127,7 +127,7 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   //Get Traveller's Phone
-  function askTravellersPhone(agent) {
+  function askPhoneNumber(agent) {
     var firstname = agent.context.get("capture-fullname").parameters.firstname;
     var lastname = agent.context.get("capture-fullname").parameters.lastname;
     var person = agent.context.get("confirm-booking").parameters.person;
@@ -360,16 +360,16 @@ app.post("/booking", express.json(), (req, res) => {
     var travelTime = agent.parameters["travel-time"];
 
     // payment
-    // var email = agent.parameters.email;
-    // var paymentMethod = agent.parameters.paymentMethod;
-    // var paymentAccount = agent.parameters.paymentAccount;
+    var email = agent.parameters.email;
+    var paymentMethod = agent.parameters.paymentMethod;
+    var paymentAccount = agent.parameters.paymentAccount;
 
     //payment
-    var email = agent.context.get("askEmailAddress-followup").parameters.email;
-    var paymentMethod = agent.context.get("askPaymentMethod-followup")
-      .parameters.paymentMethod;
-    var paymentAccount = agent.context.get("askMobileMoneyNumber-followup")
-      .parameters.paymentAccount;
+    // var email = agent.context.get("askEmailAddress-followup").parameters.email;
+    // var paymentMethod = agent.context.get("askPaymentMethod-followup")
+    //   .parameters.paymentMethod;
+    // var paymentAccount = agent.context.get("askMobileMoneyNumber-followup")
+    //   .parameters.paymentAccount;
 
     //invoiceNumber
     var invoiceNumber = generateInvoiceNumber();
@@ -540,10 +540,9 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("askName", askName);
   intentMap.set("bitOff", bitOff);
   intentMap.set("askTravellersName", askTravellersName);
-  intentMap.set("askTravellersPhone", askTravellersPhone);
+  intentMap.set("askPhoneNumber", askPhoneNumber);
   // intentMap.set("done", done);
   // intentMap.set("confirmBooking", confirmBooking);
-  intentMap.set("confirmationMessage", confirmationMessage);
   // intentMap.set("viewTickets", viewTickets);
   // intentMap.set("issuedTo", issuedTo);
   intentMap.set("somethingNice", somethingNice);
@@ -553,6 +552,7 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("askEmailAddress", askEmailAddress);
   intentMap.set("askPaymentMethod", askPaymentMethod);
   intentMap.set("askMobileMoneyNumber", askMobileMoneyNumber);
+  intentMap.set("confirmationMessage", confirmationMessage);
   // intentMap.set("paymentAmount", paymentAmount);
   intentMap.set("paymentConfirmation", paymentConfirmation);
   intentMap.set("processPayment", processPayment);
