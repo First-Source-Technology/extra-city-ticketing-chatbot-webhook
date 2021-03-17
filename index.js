@@ -321,22 +321,22 @@ app.post("/booking", express.json(), (req, res) => {
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       agent.context.set("capture_payment_status_information", 5, {
-        ID: id,
-        "Full Name": fullname,
+        // ID: id,
+        // "Full Name": fullname,
         // "Last Name": lastname,
         // Person: person,
         pollUrl: paynowReference,
-        "Ticket ID": ticketId,
-        Amount: amount,
-        Trip: trip,
-        Date: momentTravelDate,
-        "Booking Time": time,
-        "Travel Time": travelTime,
-        "Phone Number": phone,
-        "Date Object": dateObject,
-        "Payment Method": paymentMethod,
-        "Payment Account Number": paymentAccount,
-        Email: email,
+        ticketID: ticketId,
+        amount: amount,
+        trip: trip,
+        date: momentTravelDate,
+        // "Booking Time": time,
+        time: travelTime,
+        phone: phone,
+        // "Date Object": dateObject,
+        // "Payment Method": paymentMethod,
+        // "Payment Account Number": paymentAccount,
+        // Email: email,
       });
 
       return db
