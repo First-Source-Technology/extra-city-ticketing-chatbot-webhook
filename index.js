@@ -192,7 +192,7 @@ app.post("/booking", express.json(), (req, res) => {
 
   function askMobileMoneyNumber(agent) {
     agent.add(
-      "May I have your mobile money account number? example; 07XXXXXXXX"
+      "May I have your mobile money account number? \n\nExample; 07XXXXXXXX"
     );
     agent.end("");
   }
@@ -216,6 +216,7 @@ app.post("/booking", express.json(), (req, res) => {
       "last-name"
     ];
     // var person = agent.context.get("capture-fullname").parameters.person;
+    
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
     var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
     var travelTo = agent.context.get("capture-date").parameters.travelTo;
