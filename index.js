@@ -227,18 +227,21 @@ app.post("/booking", express.json(), (req, res) => {
     ];
 
     //payment variables
-    var email = agent.context.get("ask-email-address").parameters.email;
+    var email = agent.context.get("ask-payment-method").parameters.email;
     var paymentMethod = agent.context.get("ask-mobile-money-number").parameters
       .paymentMethod;
     var paymentAccount = agent.context.get("confirm-ticket").parameters
       .paymentAccount;
     var invoiceNumber = ticketID();
-
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
     // save human readable date
     const dateObject = new Date();
 
+    console.log(
+      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${momentTravelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
+    );
+
     //new Uni Timestamp
-    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
@@ -292,11 +295,6 @@ app.post("/booking", express.json(), (req, res) => {
     } else {
       amount = 2000.0;
     }
-
-    ///testing
-    console.log(
-      `Invoice Number: ${invoiceNumber} \nPayment Phone: ${paymentAccount} \nPayment Option: ${paymentMethod} \nEmail: ${email}`
-    );
 
     let paynow = new Paynow(
       process.env.PAYNOW_INTEGRATION_ID,
