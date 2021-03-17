@@ -216,9 +216,9 @@ app.post("/booking", express.json(), (req, res) => {
       "last-name"
     ];
     // var person = agent.context.get("capture-fullname").parameters.person;
-    
+
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
-    var travelFrom = agent.context.get("capture-to").parameters.travelFrom;
+    var travelFrom = agent.context.get("capture-from").parameters.travelFrom;
     var travelTo = agent.context.get("capture-date").parameters.travelTo;
     var travelDate = agent.context.get("capture-schedule").parameters[
       "travel-date"
