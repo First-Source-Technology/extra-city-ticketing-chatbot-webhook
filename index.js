@@ -184,14 +184,6 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function askPaymentMethod(agent) {
-    agent.context.set({
-      name: "backend-captured-email",
-      lifespan: 6,
-      parameters: {
-        email: agent.query,
-      },
-    });
-
     agent.add("How will you settle this transaction?");
     agent.add(new Suggestion("EcoCash"));
     agent.add(new Suggestion("OneMoney"));
@@ -214,60 +206,6 @@ app.post("/booking", express.json(), (req, res) => {
   //   agent.add(new Suggestion("No"));
   //   agent.end("");
   // }
-
-  async function checkPaymentStatus(agent) {
-    const pollUrl = agent.context.get("capture_payment_status_information")
-      .parameters.pollUrl;
-    const amount = agent.context.get("capture_payment_status_information")
-      .parameters.amount;
-    const ticketID = agent.context.get("capture_payment_status_information")
-      .parameters.ticketID;
-    const trip = agent.context.get("capture_payment_status_information")
-      .parameters.trip;
-    const date = agent.context.get("capture_payment_status_information")
-      .parameters.date;
-    const time = agent.context.get("capture_payment_status_information")
-      .parameters.time;
-    const phone = agent.context.get("capture_payment_status_information")
-      .parameters.phone;
-
-    let paynow = new paynow(
-      process.env.PAYNOW_INTEGRATION_ID,
-      process.env.PAYNOW_INTEGRATION_KEY
-    );
-    let response = await response.pollTransaction(pollUrl);
-    let status = await response.status;
-    if (
-      status === "paid" ||
-      status === "awaiting delivery" ||
-      status === "delivered"
-    ) {
-      agent.add(
-        `You have successfully booked your ticket! \r\n` +
-          `Poll URL: ${pollUrl} \r\n` +
-          `TICKET ID: ${ticketID} \r\n` +
-          `AMOUNT: ZWL$${amount.amount} \r\n` +
-          `TRIP: ${trip} \r\n` +
-          `DATE: ${date} \r\n` +
-          `TIME: ${time} \r\n` +
-          `PHONE: ${phone} \r\n`
-      );
-    } else {
-      if (
-        status === "cancelled" ||
-        status === "refunded" ||
-        status === "disputed"
-      ) {
-        agent.add("Booking transaction cancelled!");
-      } else if (
-        status === "sent" ||
-        status === "pending" ||
-        status === "created"
-      ) {
-        agent.add("You have not completed your payment!");
-      }
-    }
-  }
 
   // save the user data to the db
   async function confirmationMessage(agent) {
@@ -305,6 +243,7 @@ app.post("/booking", express.json(), (req, res) => {
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
+    var tripReverse = `${travelTo} to ${travelFrom}`;
 
     //ticket // IDEA:
     var ticketId = ticketID();
@@ -381,24 +320,24 @@ app.post("/booking", express.json(), (req, res) => {
       );
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
-      // agent.context.set("capture_payment_status_information", 5, {
-      //   ID: id,
-      //   "Full Name": fullname,
-      //   // "Last Name": lastname,
-      //   // Person: person,
-      //   pollUrl: paynowReference,
-      //   "Ticket ID": ticketId,
-      //   Amount: amount,
-      //   Trip: trip,
-      //   Date: momentTravelDate,
-      //   "Booking Time": time,
-      //   "Travel Time": travelTime,
-      //   "Phone Number": phone,
-      //   "Date Object": dateObject,
-      //   "Payment Method": paymentMethod,
-      //   "Payment Account Number": paymentAccount,
-      //   Email: email,
-      // });
+      agent.context.set("capture_payment_status_information", 5, {
+        ID: id,
+        "Full Name": fullname,
+        // "Last Name": lastname,
+        // Person: person,
+        pollUrl: paynowReference,
+        "Ticket ID": ticketId,
+        Amount: amount,
+        Trip: trip,
+        Date: momentTravelDate,
+        "Booking Time": time,
+        "Travel Time": travelTime,
+        "Phone Number": phone,
+        "Date Object": dateObject,
+        "Payment Method": paymentMethod,
+        "Payment Account Number": paymentAccount,
+        Email: email,
+      });
 
       return db
         .collection("reservations")
@@ -422,12 +361,69 @@ app.post("/booking", express.json(), (req, res) => {
           Date: momentTravelDate,
         })
         .then(
-          (ref) => console.log("Success"),
+          (ref) => console.log("Transaction Successful"),
           agent.add("Ticket successfully reserved")
         );
     } else {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
+    }
+  } //).catch((ex) => {
+  //     console.log("Something didn't go quite right", ex);
+  //   });
+  // }
+
+  async function checkPaymentStatus(agent) {
+    const pollUrl = agent.context.get("capture_payment_status_information")
+      .parameters.pollUrl;
+    const amount = agent.context.get("capture_payment_status_information")
+      .parameters.amount;
+    const ticketID = agent.context.get("capture_payment_status_information")
+      .parameters.ticketID;
+    const trip = agent.context.get("capture_payment_status_information")
+      .parameters.trip;
+    const date = agent.context.get("capture_payment_status_information")
+      .parameters.date;
+    const time = agent.context.get("capture_payment_status_information")
+      .parameters.time;
+    const phone = agent.context.get("capture_payment_status_information")
+      .parameters.phone;
+
+    let paynow = new paynow(
+      process.env.PAYNOW_INTEGRATION_ID,
+      process.env.PAYNOW_INTEGRATION_KEY
+    );
+    let response = await paynow.pollTransaction(pollUrl);
+    let status = await response.status;
+    if (
+      status === "paid" ||
+      status == "awaiting delivery" ||
+      status == "delivered"
+    ) {
+      agent.add(
+        `You have successfully booked your ticket! \r\n` +
+          `Poll URL: ${pollUrl} \r\n` +
+          `TICKET ID: ${ticketID} \r\n` +
+          `AMOUNT: ZWL$${amount.amount} \r\n` +
+          `TRIP: ${trip} \r\n` +
+          `DATE: ${date} \r\n` +
+          `TIME: ${time} \r\n` +
+          `PHONE: ${phone} \r\n`
+      );
+    } else {
+      if (
+        status == "cancelled" ||
+        status == "refunded" ||
+        status == "disputed"
+      ) {
+        agent.add("Booking transaction cancelled!");
+      } else if (
+        status == "sent" ||
+        status == "pending" ||
+        status == "created"
+      ) {
+        agent.add("You have not completed your payment!");
+      }
     }
   }
 
