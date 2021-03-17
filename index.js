@@ -218,11 +218,11 @@ app.post("/booking", express.json(), (req, res) => {
     // var person = agent.context.get("capture-fullname").parameters.person;
 
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
-    var travelFrom = agent.context.get("capture-from").parameters.travelFrom;
-    var travelTo = agent.context.get("capture-date").parameters.travelTo;
-    var travelDate = agent.context.get("capture-schedule").parameters[
+    var travelFrom = agent.context.get("capture-from").parameters.travelFrom; //capture-to
+    var travelTo = agent.context.get("capture-to").parameters.travelTo; //capture-date
+    var travelDate = agent.context.get("capture-date").parameters[
       "travel-date"
-    ];
+    ]; // capture-schedule
     var travelTime = agent.context.get("confirm-booking").parameters[
       "travel-time"
     ];
