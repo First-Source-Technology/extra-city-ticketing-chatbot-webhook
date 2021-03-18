@@ -221,7 +221,9 @@ app.post("/booking", express.json(), (req, res) => {
     var travelFrom = agent.context.get("capture-from").parameters.travelFrom; //capture-to
     var travelTo = agent.context.get("capture-to").parameters.travelTo; //capture-date
     var travelDate = agent.parameters["travel-date"]; // capture-schedule context.get("capture-schedule").
-    var travelTime = agent.parameters["travel-time"]; //.context.get("confirm-booking")
+    var travelTime = agent.context.get("ask-travelers-name").parameters[
+      "travel-time"
+    ]; //.context.get("confirm-booking")
 
     //payment variables
     var email = agent.context.get("ask-payment-method").parameters.email;
@@ -245,7 +247,7 @@ app.post("/booking", express.json(), (req, res) => {
     var ticketId = ticketID();
 
     console.log(
-      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${momentTravelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
+      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${travelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
     );
 
     var amount = 0;
