@@ -335,7 +335,7 @@ app.post("/booking", express.json(), (req, res) => {
         // Email: email,
       });
 
-      /*return db
+      return db //comment started here
         .collection("reservations")
         .add({
           ID: id,
@@ -359,7 +359,7 @@ app.post("/booking", express.json(), (req, res) => {
         .then(
           (ref) => console.log("Transaction Successful"),
           agent.add("Ticket successfully reserved")
-        );*/
+        ); // comment ended here
     } else {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
