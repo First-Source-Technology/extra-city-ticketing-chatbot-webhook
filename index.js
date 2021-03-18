@@ -9,7 +9,7 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
-// require("dotenv").config();
+require("dotenv").config();
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -246,7 +246,6 @@ app.post("/booking", express.json(), (req, res) => {
     var fullname = `${firstname} ${lastname}`;
     var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
     var tripReverse = `${travelTo} to ${travelFrom}`;
-
     //ticket // IDEA:
     var ticketId = ticketID();
 
@@ -336,7 +335,7 @@ app.post("/booking", express.json(), (req, res) => {
         // Email: email,
       });
 
-      return db
+      /*return db
         .collection("reservations")
         .add({
           ID: id,
@@ -360,7 +359,7 @@ app.post("/booking", express.json(), (req, res) => {
         .then(
           (ref) => console.log("Transaction Successful"),
           agent.add("Ticket successfully reserved")
-        );
+        );*/
     } else {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
@@ -386,10 +385,11 @@ app.post("/booking", express.json(), (req, res) => {
     const phone = agent.context.get("capture_payment_status_information")
       .parameters.phone;
 
-    let paynow = new paynow(
+    let paynow = new Paynow(
       process.env.PAYNOW_INTEGRATION_ID,
       process.env.PAYNOW_INTEGRATION_KEY
     );
+
     let response = await paynow.pollTransaction(pollUrl);
     let status = await response.status;
     if (
