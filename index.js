@@ -185,8 +185,8 @@ app.post("/booking", express.json(), (req, res) => {
 
   function askPaymentMethod(agent) {
     agent.add("How will you settle this transaction?");
-    agent.add(new Suggestion("EcoCash"));
-    agent.add(new Suggestion("OneMoney"));
+    agent.add(new Suggestion("ecocash"));
+    agent.add(new Suggestion("onemoney"));
     agent.end("");
   }
 
@@ -220,12 +220,8 @@ app.post("/booking", express.json(), (req, res) => {
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
     var travelFrom = agent.context.get("capture-from").parameters.travelFrom; //capture-to
     var travelTo = agent.context.get("capture-to").parameters.travelTo; //capture-date
-    var travelDate = agent.context.get("capture-date").parameters[
-      "travel-date"
-    ]; // capture-schedule
-    var travelTime = agent.context.get("confirm-booking").parameters[
-      "travel-time"
-    ];
+    var travelDate = agent.parameters["travel-date"]; // capture-schedule context.get("capture-schedule").
+    var travelTime = agent.parameters["travel-time"]; //.context.get("confirm-booking")
 
     //payment variables
     var email = agent.context.get("ask-payment-method").parameters.email;
@@ -238,10 +234,6 @@ app.post("/booking", express.json(), (req, res) => {
     // save human readable date
     const dateObject = new Date();
 
-    console.log(
-      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${momentTravelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
-    );
-
     //new Uni Timestamp
 
     //Let's join firstname and lastname
@@ -251,6 +243,10 @@ app.post("/booking", express.json(), (req, res) => {
 
     //ticket // IDEA:
     var ticketId = ticketID();
+
+    console.log(
+      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${momentTravelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
+    );
 
     var amount = 0;
     var possibleTrips = {
@@ -305,11 +301,7 @@ app.post("/booking", express.json(), (req, res) => {
     let payment = paynow.createPayment(ticketId, email);
     payment.add(`Booking(${trip})`, amount);
 
-    response = await paynow.sendMobile(
-      payment,
-      paymentAccount,
-      paymentMethod.toLowerCase()
-    );
+    response = await paynow.sendMobile(payment, paymentAccount, paymentMethod);
 
     if (response.success) {
       let paynowReference = response.pollUrl;
