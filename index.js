@@ -238,7 +238,7 @@ app.post("/booking", express.json(), (req, res) => {
     var invoiceNumber = ticketID();
     var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
     // save human readable date
-    const dateObject = new Date();
+    const timestamp = new Date();
 
     //new Uni Timestamp
 
@@ -348,7 +348,7 @@ app.post("/booking", express.json(), (req, res) => {
           Trip: trip,
           "Travelling From": travelFrom,
           "Travelling To": travelTo,
-          "Booking Time": time,
+          "Booking Time": timestamp,
           "Phone Number": phone,
           "Payment Method": paymentMethod,
           "Mobile Money Account": paymentAccount,
