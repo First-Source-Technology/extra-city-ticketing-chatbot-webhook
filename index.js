@@ -222,13 +222,12 @@ app.post("/booking", express.json(), (req, res) => {
     var travelTo = agent.context.get("capture-to").parameters.travelTo; //capture-date
     // var travelDate = agent.parameters["travel-date"]; // capture-schedule context.get("capture-schedule").
     // var travelTime = agent.parameters["travel-time"]; //.context.get("confirm-booking")
-    var travelDate = agent.context.get("capture-schedule").parameters[
-      "travel-date"
-    ];
-
     var travelTime = agent.context.get("capture-schedule").parameters[
       "travel-time"
     ];
+    var travelDate = agent.context.get("capture-date").parameters[
+      "travel-date"
+    ]; //capture-schedule
 
     //payment variables
     var email = agent.context.get("ask-payment-method").parameters.email;
