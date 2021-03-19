@@ -315,7 +315,6 @@ app.post("/booking", express.json(), (req, res) => {
         "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
       );
 
-      agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       agent.context.set("capture_payment_status_information", 5, {
         // ID: id,
         // "Full Name": fullname,
@@ -334,6 +333,7 @@ app.post("/booking", express.json(), (req, res) => {
         // "Payment Account Number": paymentAccount,
         // Email: email,
       });
+      agent.add(new Suggestion("CHECK PAYMENT STATUS"));
 
       return db //comment started here
         .collection("reservations")
@@ -345,6 +345,7 @@ app.post("/booking", express.json(), (req, res) => {
           pollURL: paynowReference,
           "Ticket ID": ticketId,
           Amount: amount,
+          status: "pending",
           Trip: trip,
           "Travelling From": travelFrom,
           "Travelling To": travelTo,
