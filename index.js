@@ -316,51 +316,53 @@ app.post("/booking", express.json(), (req, res) => {
       );
 
       agent.context.set("capture_payment_status_information", 5, {
-        // ID: id,
-        // "Full Name": fullname,
-        // "Last Name": lastname,
-        // Person: person,
+        ID: id,
+        fullName: fullname,
+        firstName: firstname,
+        lastName: lastname,
+        Person: person,
         pollUrl: paynowReference,
-        ticketID: ticketId,
-        amount: amount,
-        trip: trip,
+        TicketID: ticketId,
+        Amount: amount,
+        Trip: trip,
         date: momentTravelDate,
-        // "Booking Time": time,
+        bookingTime: time,
         time: travelTime,
         phone: phone,
-        // "Date Object": dateObject,
-        // "Payment Method": paymentMethod,
-        // "Payment Account Number": paymentAccount,
-        // Email: email,
+        dateObject: dateObject,
+        paymentMethod: paymentMethod,
+        paymentAccountNumber: paymentAccount,
+        Email: email,
       });
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
-
-      return db //comment started here
+      //comment started here
+      return db
         .collection("reservations")
         .add({
           ID: id,
-          "First Name": firstname,
-          Surname: lastname,
-          "Full Name": fullname,
+          firstName: firstname,
+          lastName: lastname,
+          fullname: fullname,
           pollURL: paynowReference,
-          "Ticket ID": ticketId,
+          TicketID: ticketId,
           Amount: amount,
           status: "pending",
           Trip: trip,
-          "Travelling From": travelFrom,
-          "Travelling To": travelTo,
-          "Booking Time": timestamp,
-          "Phone Number": phone,
-          "Payment Method": paymentMethod,
-          "Mobile Money Account": paymentAccount,
+          TravellingFrom: travelFrom,
+          TravellingTo: travelTo,
+          BookingTime: timestamp,
+          PhoneNumber: phone,
+          PaymentMethod: paymentMethod,
+          MobileMoneyAccount: paymentAccount,
           Email: email,
-          "Travel Time": travelTime,
+          TravelTime: travelTime,
           Date: momentTravelDate,
         })
         .then(
           (ref) => console.log("Transaction Successful"),
           agent.add("Ticket successfully reserved")
-        ); // comment ended here
+        );
+      // comment ended here
     } else {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
