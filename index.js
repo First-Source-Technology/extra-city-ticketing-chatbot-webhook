@@ -240,6 +240,8 @@ app.post("/booking", express.json(), (req, res) => {
     // save human readable date
     const timestamp = new Date();
 
+    const id = v4();
+
     //new Uni Timestamp
 
     //Let's join firstname and lastname
@@ -326,10 +328,10 @@ app.post("/booking", express.json(), (req, res) => {
         Amount: amount,
         Trip: trip,
         date: momentTravelDate,
-        bookingTime: time,
+        bookingTime: timestamp,
         time: travelTime,
         phone: phone,
-        dateObject: dateObject,
+        time: timestamp,
         paymentMethod: paymentMethod,
         paymentAccountNumber: paymentAccount,
         Email: email,
