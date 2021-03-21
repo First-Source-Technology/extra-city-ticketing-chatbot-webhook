@@ -334,6 +334,10 @@ app.post("/booking", express.json(), (req, res) => {
         paymentAccountNumber: paymentAccount,
         Email: email,
       });
+      agent.add(
+        `TICKET RESERVATION INFO \nFull Name: ${fullName} \nTicket ID #: ${TicketID} \nTrip: ${Trip} \nTravel Time: ${time} \nTravel Date: ${date} \nPhone Number: ${phone} \nEmail: ${Email} \nAmount: ${Amount} \nPayment Method: ${paymentMethod} \nPayment Account #: ${paymentAccount} \n\nThank you for choosing ExtraCity. Safe travel.`
+      );
+
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       //comment started here
       return db
