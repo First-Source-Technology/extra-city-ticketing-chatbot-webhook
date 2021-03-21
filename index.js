@@ -240,7 +240,7 @@ app.post("/booking", express.json(), (req, res) => {
     // save human readable date
     const timestamp = new Date();
 
-    const id = v4();
+    const id = uuidv4();
 
     //new Uni Timestamp
 
