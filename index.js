@@ -401,7 +401,7 @@ app.post("/booking", express.json(), (req, res) => {
         pollURL: paynowReference,
         TicketID: ticketId,
         Amount: amount,
-        status: "pending",
+        // status: "pending",
         Trip: trip,
         TravellingFrom: travelFrom,
         TravellingTo: travelTo,
