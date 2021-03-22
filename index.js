@@ -201,11 +201,58 @@ app.post("/booking", express.json(), (req, res) => {
   //   //testing
   //   // const amount = agent.parameters.amount;
   //   // console.log("Amount: $" + amount.amount);
-  //   agent.add("Confirm payment");
-  //   agent.add(new Suggestion("Yes"));
-  //   agent.add(new Suggestion("No"));
-  //   agent.end("");
+
+  // agent.add(
+  //       `TICKET RESERVATION INFO \nFull Name: ${fullName} \nTicket ID #: ${TicketID} \nTrip: ${Trip} \nTravel Time: ${time} \nTravel Date: ${date} \nPhone Number: ${phone} \nEmail: ${Email} \nAmount: ${Amount} \nPayment Method: ${paymentMethod} \nPayment Account #: ${paymentAccount} \n\nThank you for choosing ExtraCity. Safe travel.`
+  //     );
+  // agent.add("Confirm payment");
+  // agent.add(new Suggestion("Yes"));
+  // agent.add(new Suggestion("No"));
+  // agent.end("");
   // }
+
+  function confirmBooking(agent) {
+    var firstname = agent.context.get("ask-phone-number").parameters[
+      "given-name"
+    ];
+    var lastname = agent.context.get("ask-phone-number").parameters[
+      "last-name"
+    ];
+    var person = agent.context.get("ask-phone-number").parameters.person;
+    // var person = agent.context.get("capture-fullname").parameters.person;
+
+    var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
+    var travelFrom = agent.context.get("capture-from").parameters.travelFrom; //capture-to
+    var travelTo = agent.context.get("capture-to").parameters.travelTo; //capture-date
+    var travelTime = agent.context.get("capture-schedule").parameters[
+      "travel-time"
+    ];
+    var travelDate = agent.context.get("capture-date").parameters[
+      "travel-date"
+    ]; //capture-schedule
+
+    //payment variables
+    var email = agent.context.get("ask-payment-method").parameters.email;
+    var paymentMethod = agent.context.get("ask-mobile-money-number").parameters
+      .paymentMethod;
+    var paymentAccount = agent.context.get("confirm-ticket").parameters
+      .paymentAccount;
+    var invoiceNumber = ticketID();
+    var momentTravelDate = moment(travelDate, "YYYY-MM-DD HH:mm:ss").toDate();
+
+    var fullname = `${firstname} ${lastname}`;
+    var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
+    var ticketId = ticketID();
+
+    agent.add(
+      `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nTrip: ${trip} \nDate: ${momentTravelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nTicket ID #: ${ticketId}`
+    );
+
+    agent.add("Confirm Ticket Reservation");
+    agent.add(new Suggestion("Yes"));
+    agent.add(new Suggestion("No"));
+    agent.end("");
+  }
 
   // save the user data to the db
   async function confirmationMessage(agent) {
@@ -215,6 +262,7 @@ app.post("/booking", express.json(), (req, res) => {
     var lastname = agent.context.get("ask-phone-number").parameters[
       "last-name"
     ];
+    var person = agent.context.get("ask-phone-number").parameters.person;
     // var person = agent.context.get("capture-fullname").parameters.person;
 
     var phone = agent.context.get("ask-email-address").parameters.phoneNumber;
@@ -250,6 +298,10 @@ app.post("/booking", express.json(), (req, res) => {
     var tripReverse = `${travelTo} to ${travelFrom}`;
     //ticket // IDEA:
     var ticketId = ticketID();
+
+    // if (person === null || person == 'undefined') {
+    //   person = fullname;
+    // }
 
     console.log(
       `Name: ${fullname} \nPhone: ${phone} \nDeparture Point: ${travelFrom} \nArrival Point: ${travelTo} \nDate: ${travelDate} \nTime: ${travelTime} \nEmail: ${email} \nPayment Method: ${paymentMethod} \nPayment Account: ${paymentAccount} \nReceipt #: ${invoiceNumber}`
@@ -322,7 +374,7 @@ app.post("/booking", express.json(), (req, res) => {
         fullName: fullname,
         firstName: firstname,
         lastName: lastname,
-        Person: person,
+        // Person: person,
         pollUrl: paynowReference,
         TicketID: ticketId,
         Amount: amount,
@@ -336,38 +388,35 @@ app.post("/booking", express.json(), (req, res) => {
         paymentAccountNumber: paymentAccount,
         Email: email,
       });
-      agent.add(
-        `TICKET RESERVATION INFO \nFull Name: ${fullName} \nTicket ID #: ${TicketID} \nTrip: ${Trip} \nTravel Time: ${time} \nTravel Date: ${date} \nPhone Number: ${phone} \nEmail: ${Email} \nAmount: ${Amount} \nPayment Method: ${paymentMethod} \nPayment Account #: ${paymentAccount} \n\nThank you for choosing ExtraCity. Safe travel.`
-      );
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       //comment started here
       return db
-        .collection("reservations")
-        .add({
-          ID: id,
-          firstName: firstname,
-          lastName: lastname,
-          fullname: fullname,
-          pollURL: paynowReference,
-          TicketID: ticketId,
-          Amount: amount,
-          status: "pending",
-          Trip: trip,
-          TravellingFrom: travelFrom,
-          TravellingTo: travelTo,
-          BookingTime: timestamp,
-          PhoneNumber: phone,
-          PaymentMethod: paymentMethod,
-          MobileMoneyAccount: paymentAccount,
-          Email: email,
-          TravelTime: travelTime,
-          Date: momentTravelDate,
-        })
-        .then(
-          (ref) => console.log("Transaction Successful"),
-          agent.add("Ticket successfully reserved")
-        );
+      .collection("reservations")
+      .add({
+        ID: id,
+        firstName: firstname,
+        lastName: lastname,
+        fullname: fullname,
+        pollURL: paynowReference,
+        TicketID: ticketId,
+        Amount: amount,
+        status: "pending",
+        Trip: trip,
+        TravellingFrom: travelFrom,
+        TravellingTo: travelTo,
+        BookingTime: timestamp,
+        PhoneNumber: phone,
+        PaymentMethod: paymentMethod,
+        MobileMoneyAccount: paymentAccount,
+        Email: email,
+        TravelTime: travelTime,
+        Date: momentTravelDate,
+      })
+      .then(
+        (ref) => console.log("Transaction Successful"),
+        agent.add("Ticket successfully reserved")
+      );
       // comment ended here
     } else {
       agent.add("Whoops, something went wrong!");
@@ -455,9 +504,8 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("askEmailAddress", askEmailAddress);
   intentMap.set("askPaymentMethod", askPaymentMethod);
   intentMap.set("askMobileMoneyNumber", askMobileMoneyNumber);
+  intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
-  // intentMap.set("paymentConfirmation", paymentConfirmation);
-  // intentMap.set("processPayment", processPayment);
   intentMap.set("checkPaymentStatus", checkPaymentStatus);
 
   agent.handleRequest(intentMap);
