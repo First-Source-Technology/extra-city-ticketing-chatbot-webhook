@@ -2,6 +2,7 @@
 // Author: Andile Jaden Mbele
 // Program: index.js
 // Purpose: webhook for Extra City AI Assistant
+//https://extracitywebhook.herokuapp.com/booking
 
 const express = require("express");
 const app = express();
@@ -9,7 +10,12 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
+var pdf = require('html-pdf');
+const HummusRecipe = require('hummus-recipe');
+const fs = require('fs');
+var path = require('path');
 require("dotenv").config();
+app.use(express.static('public'))
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -49,6 +55,238 @@ app.get("/", (req, res) => {
   res.send("Your application is running with no issues.");
 });
 
+app.get("/downloads/:ticketID", async (req, res) => {
+  let ticketID = decodeURIComponent(req.params.ticketID);
+  let rticketID = ticketID.replace(" ",'');
+	let path = __dirname + `/downloads/pdf/${rticketID}.pdf`;
+	let pathenc = __dirname +`/downloads/pdf/${rticketID}_encrypted.pdf`;
+
+	//get ticket
+	await db.collection("reservations")
+      .where("TicketID", "==", ticketID)
+      .limit(1)
+      .get()
+      .then(snapshot => {
+        if (snapshot.size == 0){
+          	res.send("Ticket not found!");
+        }
+        else{
+         	let ticket = snapshot.docs[0].data();
+         	//if file does not exist the create a new one
+			try {
+			  if (!fs.existsSync(pathenc)) {
+			   generatePDF(req, ticket, path, pathenc);
+			  }
+			} catch(err) {
+				res.send("Whoops! An error occurred");
+			  	console.error(err)
+			}
+
+			//now download
+			res.download(path);
+        }
+      })
+      .catch((err) => {
+      	res.send("Whoops! Something went wrong!");
+      	console.log(err);
+      });
+    
+  });
+
+  async function generatePDF(req, ticket, path, pathenc){
+    /*try {
+     if (!fs.existsSync(path)) {
+      //delete path
+      fs.unlink(path);
+     }
+    } catch(err) {
+      console.error(err)
+    }*/
+ 
+    var options = { format: 'A5' };
+
+    await pdf.create(getTicketTemplate(req,ticket), options).toFile(path, function(err, res) {
+      if (err) return console.log(err);
+      console.log(res);
+    });
+   
+ 
+   //now encrypt
+   /*
+   const pdfDoc = new HummusRecipe(path, pathenc);
+   pdfDoc
+     .encrypt({
+         //userPassword: ticket.paymentAccount,
+         //ownerPassword: ticket.paymentAccount,
+         userPassword: '12345',
+         ownerPassword: '12345',
+         userProtectionFlag: 4
+     })
+     .endPDF();
+     */
+ 
+     try {
+     if (fs.existsSync(pathenc)) {
+      //delete path
+      fs.unlinkSync(path);
+     }
+   } catch(err) {
+     console.error(err)
+   }
+  
+ }
+
+ function getTicketTemplate(req,ticket){
+  formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'ZWL',
+  });
+
+   return `
+        <html>
+          <head>
+            <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+              <style type="text/css">
+                  <!--
+                  body {
+                    display: block;
+                    position: relative;
+                  }
+                  
+                  body::after {
+                    content: "";
+                    background: url(${path.join('file://', __dirname, '/public/imageedit_1_3395706360.png')});
+                    opacity: 0.2;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    right: 0;
+                    position: absolute;
+                    z-index: -1;   
+                  }
+              span.cls_003, td{font-family:Arial,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_003{font-family:Arial,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              cls_004{font-family:Arial,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              div.cls_004{font-family:Arial,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              span.cls_005{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_005{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              span.cls_006{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              div.cls_006{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              span.cls_007{font-family:Arial,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_007{font-family:Arial,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              -->
+              </style>
+          </head>
+          <body>
+              <div style="position:absolute;left:0px;top:0px">
+                  <div style="text-align: center;"><img src="${path.join('file://', __dirname, '/public/extracity_luxury_1575462058.gif')}" height="60px"/></div>
+                    <table style="border: 2px solid black; margin: 10px">
+                      <tbody>
+                          <tr>
+                              <td><img src="${path.join('file://', __dirname, '/public/tick.png')}" height="30px"/></td>
+                              <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                TICKET CONFIRMED
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cls_004">
+                                                Congratulations your ticket has been booked.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                              </td>
+                          </tr>
+                      </tbody>
+                    </table>
+                    <table style="margin: 10px">
+                        <tbody>
+                            <tr>
+                                <td class="cls_005"><span class="cls_005">Ref No:</span></td>
+                                <td class="cls_005"><span class="cls_005">--</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Ticket No:</span></td>
+                                <td class="cls_006"><span class="cls_006">${ticket.TicketID}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Seat No:</span></td>
+                                <td class="cls_006"><span class="cls_006">--</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Name:</span></td>
+                                <td class="cls_006"><span class="cls_006">${ticket.fullname}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Mobile No:</span></td>
+                                <td class="cls_006"><span class="cls_006">${ticket.PhoneNumber}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Email address:</span></td>
+                                <td class="cls_006"><span class="cls_006">${ticket.Email}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+   
+                    <table style="margin:10px;border: 2px solid black; min-width: 90%">
+                        <tbody>
+                            <tr>
+                                <td class="cls_007"><span class="cls_007">Depart:${ticket.TravellingFrom}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">(Station)</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_005"><span class="cls_005">${moment(ticket.Date.toDate()).format('ll')} ${ticket.TravelTime}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Checkin 1 Hour before Departure</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+   
+                    <table style="margin:10px;border: 2px solid black; min-width: 90%">
+                        <tbody>
+                            <tr>
+                                <td class="cls_007"><span class="cls_007">Arrive: ${ticket.TravellingTo}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">(Station)</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_005"><span class="cls_005">--</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+   
+                    <table style="margin: 10px">
+                        <tbody>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Booked By:</span><span class="cls_005">${ticket.fullname}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_005"><span class="cls_005">CALLCENTRE </span><span class="cls_006">${moment(ticket.BookingTime.toDate()).format('lll')}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_007"><span class="cls_007">Price: ${formatter.format(ticket.Amount)}[Online- CASH]</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">Terms & Conditions Apply  For</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cls_006"><span class="cls_006">For more info call +263</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </body>
+              </html>`;
+   
+ }
+ 
 // whatever we may want to output we will write it in here
 app.post("/booking", express.json(), (req, res) => {
   const agent = new dfff.WebhookClient({
@@ -376,9 +614,9 @@ app.post("/booking", express.json(), (req, res) => {
         lastName: lastname,
         // Person: person,
         pollUrl: paynowReference,
-        TicketID: ticketId,
-        Amount: amount,
-        Trip: trip,
+        ticketID: ticketId,
+        amount: amount,
+        trip: trip,
         date: momentTravelDate,
         bookingTime: timestamp,
         time: travelTime,
@@ -450,20 +688,25 @@ app.post("/booking", express.json(), (req, res) => {
 
     let response = await paynow.pollTransaction(pollUrl);
     let status = await response.status;
-    if (
+    /*if (
       status === "paid" ||
       status == "awaiting delivery" ||
       status == "delivered"
-    ) {
+    )*/if(true) {
+      //create pdf and send link
+
       agent.add(
         `You have successfully booked your ticket! \r\n` +
           `Poll URL: ${pollUrl} \r\n` +
           `TICKET ID: ${ticketID} \r\n` +
-          `AMOUNT: ZWL$${amount.amount} \r\n` +
+          `AMOUNT: ZWL${amount} \r\n` +
           `TRIP: ${trip} \r\n` +
           `DATE: ${date} \r\n` +
           `TIME: ${time} \r\n` +
-          `PHONE: ${phone} \r\n`
+          `PHONE: ${phone} \r\n` +
+          `\r\n To download your ticket, click the link below \r\n ` +
+        req.headers.host + "/downloads/" + encodeURIComponent(ticketID) + " \r\n" +
+        `File password is ${phone}`
       );
     } else {
       if (
