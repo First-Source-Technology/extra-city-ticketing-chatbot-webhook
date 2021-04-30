@@ -82,8 +82,11 @@ app.get("/downloads/:ticketID", async (req, res) => {
 			  	console.error(err)
 			}
 
-			//now download
-			res.download(path);
+      //hack
+      setTimeout(function () {
+        res.download(pathenc);
+      }, 5000);
+
         }
       })
       .catch((err) => {
@@ -110,21 +113,18 @@ app.get("/downloads/:ticketID", async (req, res) => {
       console.log(res);
     });
    
- 
-   //now encrypt
-   /*
-   const pdfDoc = new HummusRecipe(path, pathenc);
-   pdfDoc
-     .encrypt({
-         //userPassword: ticket.paymentAccount,
-         //ownerPassword: ticket.paymentAccount,
-         userPassword: '12345',
-         ownerPassword: '12345',
-         userProtectionFlag: 4
-     })
-     .endPDF();
-     */
- 
+    //another hack
+    //now encrypt
+    setTimeout(function () {
+      const pdfDoc = new HummusRecipe(path, pathenc);
+      pdfDoc
+        .encrypt({
+          userPassword: ticket.PhoneNumber,
+          ownerPassword: ticket.PhoneNumber,
+          userProtectionFlag: 4
+      })
+      .endPDF();
+    }, 2000);
      try {
      if (fs.existsSync(pathenc)) {
       //delete path
@@ -207,7 +207,7 @@ app.get("/downloads/:ticketID", async (req, res) => {
                         <tbody>
                             <tr>
                                 <td class="cls_005"><span class="cls_005">Ref No:</span></td>
-                                <td class="cls_005"><span class="cls_005">--</span></td>
+                                <td class="cls_005"><span class="cls_005">${ticket.refNo}</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Ticket No:</span></td>
@@ -215,7 +215,7 @@ app.get("/downloads/:ticketID", async (req, res) => {
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Seat No:</span></td>
-                                <td class="cls_006"><span class="cls_006">--</span></td>
+                                <td class="cls_006"><span class="cls_006">${ticket.seatNo}</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Name:</span></td>
@@ -492,6 +492,25 @@ app.post("/booking", express.json(), (req, res) => {
     agent.end("");
   }
 
+  function generateRandomReferenceNumber(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  function generateRandomSeatNumber(){
+    //temporary fix
+    var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    
+    var seat_letter = letters[(Math.floor(Math.random() * 25)).toString()];
+
+    var seat_number = (Math.floor(Math.random() * 100) + 1).toString();
+    seat_number .length == 1 && (seat_number  = "0" + seat_number );
+
+    return seat_letter + seat_number;
+  }
+
   // save the user data to the db
   async function confirmationMessage(agent) {
     var firstname = agent.context.get("ask-phone-number").parameters[
@@ -590,6 +609,9 @@ app.post("/booking", express.json(), (req, res) => {
       amount = 2000.0;
     }
 
+    var seatNo = generateRandomSeatNumber();
+    var refNo = generateRandomReferenceNumber();
+
     let paynow = new Paynow(
       process.env.PAYNOW_INTEGRATION_ID,
       process.env.PAYNOW_INTEGRATION_KEY
@@ -605,27 +627,7 @@ app.post("/booking", express.json(), (req, res) => {
 
       agent.add(
         "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
-      );
-
-      agent.context.set("capture_payment_status_information", 5, {
-        ID: id,
-        fullName: fullname,
-        firstName: firstname,
-        lastName: lastname,
-        // Person: person,
-        pollUrl: paynowReference,
-        ticketID: ticketId,
-        amount: amount,
-        trip: trip,
-        date: momentTravelDate,
-        bookingTime: timestamp,
-        time: travelTime,
-        phone: phone,
-        time: timestamp,
-        paymentMethod: paymentMethod,
-        paymentAccountNumber: paymentAccount,
-        Email: email,
-      });
+      )
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       //comment started here
@@ -639,7 +641,7 @@ app.post("/booking", express.json(), (req, res) => {
         pollURL: paynowReference,
         TicketID: ticketId,
         Amount: amount,
-        // status: "pending",
+        status: "pending",
         Trip: trip,
         TravellingFrom: travelFrom,
         TravellingTo: travelTo,
@@ -650,10 +652,34 @@ app.post("/booking", express.json(), (req, res) => {
         Email: email,
         TravelTime: travelTime,
         Date: momentTravelDate,
+        seatNo: seatNo,
+        refNo: refNo
       })
       .then(
-        (ref) => console.log("Transaction Successful"),
-        agent.add("Ticket successfully reserved")
+        (ref) => {
+          agent.context.set("capture_payment_status_information", 5, {
+            ID: id,
+            fullName: fullname,
+            firstName: firstname,
+            lastName: lastname,
+            // Person: person,
+            pollUrl: paynowReference,
+            ticketID: ticketId,
+            amount: amount,
+            trip: trip,
+            date: momentTravelDate,
+            bookingTime: timestamp,
+            time: travelTime,
+            phone: phone,
+            time: timestamp,
+            paymentMethod: paymentMethod,
+            paymentAccountNumber: paymentAccount,
+            Email: email,
+            docID: ref.id
+          });
+          console.log(ref.id);
+          agent.add("Ticket successfully reserved");
+        }
       );
       // comment ended here
     } else {
@@ -680,6 +706,8 @@ app.post("/booking", express.json(), (req, res) => {
       .parameters.time;
     const phone = agent.context.get("capture_payment_status_information")
       .parameters.phone;
+    const docID = agent.context.get("capture_payment_status_information")
+      .parameters.docID;
 
     let paynow = new Paynow(
       process.env.PAYNOW_INTEGRATION_ID,
@@ -694,7 +722,6 @@ app.post("/booking", express.json(), (req, res) => {
       status == "delivered"
     )*/if(true) {
       //create pdf and send link
-
       agent.add(
         `You have successfully booked your ticket! \r\n` +
           `Poll URL: ${pollUrl} \r\n` +
@@ -708,6 +735,12 @@ app.post("/booking", express.json(), (req, res) => {
         req.headers.host + "/downloads/" + encodeURIComponent(ticketID) + " \r\n" +
         `File password is ${phone}`
       );
+      db.collection("reservations").doc(docID).update({
+        status: "paid"
+      }).then((e)=>{
+        console.log("success");
+        
+      })
     } else {
       if (
         status == "cancelled" ||
