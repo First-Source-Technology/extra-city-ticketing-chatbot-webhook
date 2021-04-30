@@ -146,6 +146,8 @@ app.get("/downloads/:ticketID", async (req, res) => {
         <html>
           <head>
             <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
               <style type="text/css">
                   <!--
                   body {
@@ -164,16 +166,16 @@ app.get("/downloads/:ticketID", async (req, res) => {
                     position: absolute;
                     z-index: -1;   
                   }
-              span.cls_003, td{font-family:Arial,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
-              div.cls_003{font-family:Arial,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
-              cls_004{font-family:Arial,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
-              div.cls_004{font-family:Arial,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
-              span.cls_005{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
-              div.cls_005{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
-              span.cls_006{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
-              div.cls_006{font-family:Arial,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
-              span.cls_007{font-family:Arial,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
-              div.cls_007{font-family:Arial,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              span.cls_003, td{font-family:Roboto,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_003{font-family:Roboto,serif;font-size:15px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              cls_004{font-family:Roboto,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              div.cls_004{font-family:Roboto,serif;font-size:12px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              span.cls_005{font-family:Roboto,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_005{font-family:Roboto,serif;font-size:13px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              span.cls_006{font-family:Roboto,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              div.cls_006{font-family:Roboto,serif;font-size:13px;color:rgb(81,81,81);font-weight:normal;font-style:normal;text-decoration: none}
+              span.cls_007{font-family:Roboto,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
+              div.cls_007{font-family:Roboto,serif;font-size:16px;color:rgb(81,81,81);font-weight:bold;font-style:normal;text-decoration: none}
               -->
               </style>
           </head>
