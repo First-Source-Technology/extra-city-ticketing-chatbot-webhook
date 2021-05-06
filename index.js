@@ -10,12 +10,12 @@ const dfff = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
-var pdf = require('html-pdf');
-const HummusRecipe = require('hummus-recipe');
-const fs = require('fs');
-var path = require('path');
+var pdf = require("html-pdf");
+const HummusRecipe = require("hummus-recipe");
+const fs = require("fs");
+var path = require("path");
 require("dotenv").config();
-app.use(express.static('public'))
+app.use(express.static("public"));
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -57,47 +57,45 @@ app.get("/", (req, res) => {
 
 app.get("/downloads/:ticketID", async (req, res) => {
   let ticketID = decodeURIComponent(req.params.ticketID);
-  let rticketID = ticketID.replace(" ",'');
-	let path = __dirname + `/downloads/pdf/${rticketID}.pdf`;
-	let pathenc = __dirname +`/downloads/pdf/${rticketID}_encrypted.pdf`;
+  let rticketID = ticketID.replace(" ", "");
+  let path = __dirname + `/downloads/pdf/${rticketID}.pdf`;
+  let pathenc = __dirname + `/downloads/pdf/${rticketID}_encrypted.pdf`;
 
-	//get ticket
-	await db.collection("reservations")
-      .where("TicketID", "==", ticketID)
-      .limit(1)
-      .get()
-      .then(snapshot => {
-        if (snapshot.size == 0){
-          	res.send("Ticket not found!");
+  //get ticket
+  await db
+    .collection("reservations")
+    .where("TicketID", "==", ticketID)
+    .limit(1)
+    .get()
+    .then((snapshot) => {
+      if (snapshot.size == 0) {
+        res.send("Ticket not found!");
+      } else {
+        let ticket = snapshot.docs[0].data();
+        //if file does not exist the create a new one
+        try {
+          if (!fs.existsSync(pathenc)) {
+            generatePDF(req, ticket, path, pathenc);
+          }
+        } catch (err) {
+          res.send("Whoops! An error occurred");
+          console.error(err);
         }
-        else{
-         	let ticket = snapshot.docs[0].data();
-         	//if file does not exist the create a new one
-			try {
-			  if (!fs.existsSync(pathenc)) {
-			   generatePDF(req, ticket, path, pathenc);
-			  }
-			} catch(err) {
-				res.send("Whoops! An error occurred");
-			  	console.error(err)
-			}
 
-      //hack
-      setTimeout(function () {
-        res.download(pathenc);
-      }, 5000);
+        //hack
+        setTimeout(function () {
+          res.download(pathenc);
+        }, 5000);
+      }
+    })
+    .catch((err) => {
+      res.send("Whoops! Something went wrong!");
+      console.log(err);
+    });
+});
 
-        }
-      })
-      .catch((err) => {
-      	res.send("Whoops! Something went wrong!");
-      	console.log(err);
-      });
-    
-  });
-
-  async function generatePDF(req, ticket, path, pathenc){
-    /*try {
+async function generatePDF(req, ticket, path, pathenc) {
+  /*try {
      if (!fs.existsSync(path)) {
       //delete path
       fs.unlink(path);
@@ -105,44 +103,45 @@ app.get("/downloads/:ticketID", async (req, res) => {
     } catch(err) {
       console.error(err)
     }*/
- 
-    var options = { format: 'A5' };
 
-    await pdf.create(getTicketTemplate(req,ticket), options).toFile(path, function(err, res) {
+  var options = { format: "A5" };
+
+  await pdf
+    .create(getTicketTemplate(req, ticket), options)
+    .toFile(path, function (err, res) {
       if (err) return console.log(err);
       console.log(res);
     });
-   
-    //another hack
-    //now encrypt
-    setTimeout(function () {
-      const pdfDoc = new HummusRecipe(path, pathenc);
-      pdfDoc
-        .encrypt({
-          userPassword: ticket.PhoneNumber,
-          ownerPassword: ticket.PhoneNumber,
-          userProtectionFlag: 4
+
+  //another hack
+  //now encrypt
+  setTimeout(function () {
+    const pdfDoc = new HummusRecipe(path, pathenc);
+    pdfDoc
+      .encrypt({
+        userPassword: ticket.PhoneNumber,
+        ownerPassword: ticket.PhoneNumber,
+        userProtectionFlag: 4,
       })
       .endPDF();
-    }, 2000);
-     try {
-     if (fs.existsSync(pathenc)) {
+  }, 2000);
+  try {
+    if (fs.existsSync(pathenc)) {
       //delete path
       fs.unlinkSync(path);
-     }
-   } catch(err) {
-     console.error(err)
-   }
-  
- }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
 
- function getTicketTemplate(req,ticket){
-  formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'ZWL',
+function getTicketTemplate(req, ticket) {
+  formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "ZWL",
   });
 
-   return `
+  return `
         <html>
           <head>
             <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
@@ -157,7 +156,11 @@ app.get("/downloads/:ticketID", async (req, res) => {
                   
                   body::after {
                     content: "";
-                    background: url(${path.join('file://', __dirname, '/public/imageedit_1_3395706360.png')});
+                    background: url(${path.join(
+                      "file://",
+                      __dirname,
+                      "/public/imageedit_1_3395706360.png"
+                    )});
                     opacity: 0.2;
                     top: 0;
                     left: 0;
@@ -181,11 +184,19 @@ app.get("/downloads/:ticketID", async (req, res) => {
           </head>
           <body>
               <div style="position:absolute;left:0px;top:0px">
-                  <div style="text-align: center;"><img src="${path.join('file://', __dirname, '/public/extracity_luxury_1575462058.gif')}" height="60px"/></div>
+                  <div style="text-align: center;"><img src="${path.join(
+                    "file://",
+                    __dirname,
+                    "/public/extracity_luxury_1575462058.gif"
+                  )}" height="60px"/></div>
                     <table style="border: 2px solid black; margin: 10px">
                       <tbody>
                           <tr>
-                              <td><img src="${path.join('file://', __dirname, '/public/tick.png')}" height="30px"/></td>
+                              <td><img src="${path.join(
+                                "file://",
+                                __dirname,
+                                "/public/tick.png"
+                              )}" height="30px"/></td>
                               <td>
                                 <table>
                                     <tbody>
@@ -209,27 +220,39 @@ app.get("/downloads/:ticketID", async (req, res) => {
                         <tbody>
                             <tr>
                                 <td class="cls_005"><span class="cls_005">Ref No:</span></td>
-                                <td class="cls_005"><span class="cls_005">${ticket.refNo}</span></td>
+                                <td class="cls_005"><span class="cls_005">${
+                                  ticket.refNo
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Ticket No:</span></td>
-                                <td class="cls_006"><span class="cls_006">${ticket.TicketID}</span></td>
+                                <td class="cls_006"><span class="cls_006">${
+                                  ticket.TicketID
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Seat No:</span></td>
-                                <td class="cls_006"><span class="cls_006">${ticket.seatNo}</span></td>
+                                <td class="cls_006"><span class="cls_006">${
+                                  ticket.seatNo
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Name:</span></td>
-                                <td class="cls_006"><span class="cls_006">${ticket.fullname}</span></td>
+                                <td class="cls_006"><span class="cls_006">${
+                                  ticket.fullname
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Mobile No:</span></td>
-                                <td class="cls_006"><span class="cls_006">${ticket.PhoneNumber}</span></td>
+                                <td class="cls_006"><span class="cls_006">${
+                                  ticket.PhoneNumber
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Email address:</span></td>
-                                <td class="cls_006"><span class="cls_006">${ticket.Email}</span></td>
+                                <td class="cls_006"><span class="cls_006">${
+                                  ticket.Email
+                                }</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -237,13 +260,17 @@ app.get("/downloads/:ticketID", async (req, res) => {
                     <table style="margin:10px;border: 2px solid black; min-width: 90%">
                         <tbody>
                             <tr>
-                                <td class="cls_007"><span class="cls_007">Depart:${ticket.TravellingFrom}</span></td>
+                                <td class="cls_007"><span class="cls_007">Depart:${
+                                  ticket.TravellingFrom
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">(Station)</span></td>
                             </tr>
                             <tr>
-                                <td class="cls_005"><span class="cls_005">${moment(ticket.Date.toDate()).format('ll')} ${ticket.TravelTime}</span></td>
+                                <td class="cls_005"><span class="cls_005">${moment(
+                                  ticket.Date.toDate()
+                                ).format("ll")} ${ticket.TravelTime}</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Checkin 1 Hour before Departure</span></td>
@@ -254,7 +281,9 @@ app.get("/downloads/:ticketID", async (req, res) => {
                     <table style="margin:10px;border: 2px solid black; min-width: 90%">
                         <tbody>
                             <tr>
-                                <td class="cls_007"><span class="cls_007">Arrive: ${ticket.TravellingTo}</span></td>
+                                <td class="cls_007"><span class="cls_007">Arrive: ${
+                                  ticket.TravellingTo
+                                }</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">(Station)</span></td>
@@ -268,13 +297,19 @@ app.get("/downloads/:ticketID", async (req, res) => {
                     <table style="margin: 10px">
                         <tbody>
                             <tr>
-                                <td class="cls_006"><span class="cls_006">Booked By:</span><span class="cls_005">${ticket.fullname}</span></td>
+                                <td class="cls_006"><span class="cls_006">Booked By:</span><span class="cls_005">${
+                                  ticket.fullname
+                                }</span></td>
                             </tr>
                             <tr>
-                                <td class="cls_005"><span class="cls_005">CALLCENTRE </span><span class="cls_006">${moment(ticket.BookingTime.toDate()).format('lll')}</span></td>
+                                <td class="cls_005"><span class="cls_005">CALLCENTRE </span><span class="cls_006">${moment(
+                                  ticket.BookingTime.toDate()
+                                ).format("lll")}</span></td>
                             </tr>
                             <tr>
-                                <td class="cls_007"><span class="cls_007">Price: ${formatter.format(ticket.Amount)}[Online- CASH]</span></td>
+                                <td class="cls_007"><span class="cls_007">Price: ${formatter.format(
+                                  ticket.Amount
+                                )}[Online- CASH]</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Terms & Conditions Apply  For</span></td>
@@ -286,9 +321,8 @@ app.get("/downloads/:ticketID", async (req, res) => {
                     </table>
                 </body>
               </html>`;
-   
- }
- 
+}
+
 // whatever we may want to output we will write it in here
 app.post("/booking", express.json(), (req, res) => {
   const agent = new dfff.WebhookClient({
@@ -399,7 +433,7 @@ app.post("/booking", express.json(), (req, res) => {
     num.length == 1 && (num = "0" + num);
     num.length == 2 && (num = "0" + num);
 
-    return `Extra City-${dateString}-${num}`;
+    return `ExC-${dateString}-${num}`;
   }
 
   //format date
@@ -494,21 +528,52 @@ app.post("/booking", express.json(), (req, res) => {
     agent.end("");
   }
 
-  function generateRandomReferenceNumber(){
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
+  function generateRandomReferenceNumber() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
   }
 
-  function generateRandomSeatNumber(){
+  function generateRandomSeatNumber() {
     //temporary fix
-    var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-    
-    var seat_letter = letters[(Math.floor(Math.random() * 25)).toString()];
+    var letters = [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+    ];
+
+    var seat_letter = letters[Math.floor(Math.random() * 25).toString()];
 
     var seat_number = (Math.floor(Math.random() * 100) + 1).toString();
-    seat_number .length == 1 && (seat_number  = "0" + seat_number );
+    seat_number.length == 1 && (seat_number = "0" + seat_number);
 
     return seat_letter + seat_number;
   }
@@ -629,36 +694,35 @@ app.post("/booking", express.json(), (req, res) => {
 
       agent.add(
         "A popup will appear, enter your PIN number to complete the payment. After making your payment, click CHECK PAYMENT STATUS"
-      )
+      );
 
       agent.add(new Suggestion("CHECK PAYMENT STATUS"));
       //comment started here
       return db
-      .collection("reservations")
-      .add({
-        ID: id,
-        firstName: firstname,
-        lastName: lastname,
-        fullname: fullname,
-        pollURL: paynowReference,
-        TicketID: ticketId,
-        Amount: amount,
-        status: "pending",
-        Trip: trip,
-        TravellingFrom: travelFrom,
-        TravellingTo: travelTo,
-        BookingTime: timestamp,
-        PhoneNumber: phone,
-        PaymentMethod: paymentMethod,
-        MobileMoneyAccount: paymentAccount,
-        Email: email,
-        TravelTime: travelTime,
-        Date: momentTravelDate,
-        seatNo: seatNo,
-        refNo: refNo
-      })
-      .then(
-        (ref) => {
+        .collection("reservations")
+        .add({
+          ID: id,
+          firstName: firstname,
+          lastName: lastname,
+          fullname: fullname,
+          pollURL: paynowReference,
+          TicketID: ticketId,
+          Amount: amount,
+          status: "pending",
+          Trip: trip,
+          TravellingFrom: travelFrom,
+          TravellingTo: travelTo,
+          BookingTime: timestamp,
+          PhoneNumber: phone,
+          PaymentMethod: paymentMethod,
+          MobileMoneyAccount: paymentAccount,
+          Email: email,
+          TravelTime: travelTime,
+          Date: momentTravelDate,
+          seatNo: seatNo,
+          refNo: refNo,
+        })
+        .then((ref) => {
           agent.context.set("capture_payment_status_information", 5, {
             ID: id,
             fullName: fullname,
@@ -677,12 +741,11 @@ app.post("/booking", express.json(), (req, res) => {
             paymentMethod: paymentMethod,
             paymentAccountNumber: paymentAccount,
             Email: email,
-            docID: ref.id
+            docID: ref.id,
           });
           console.log(ref.id);
           agent.add("Ticket successfully reserved");
-        }
-      );
+        });
       // comment ended here
     } else {
       agent.add("Whoops, something went wrong!");
@@ -722,7 +785,9 @@ app.post("/booking", express.json(), (req, res) => {
       status === "paid" ||
       status == "awaiting delivery" ||
       status == "delivered"
-    )*/if(true) {
+    )*/ if (
+      true
+    ) {
       //create pdf and send link
       agent.add(
         `You have successfully booked your ticket! \r\n` +
@@ -734,15 +799,20 @@ app.post("/booking", express.json(), (req, res) => {
           `TIME: ${time} \r\n` +
           `PHONE: ${phone} \r\n` +
           `\r\n To download your ticket, click the link below \r\n ` +
-        req.headers.host + "/downloads/" + encodeURIComponent(ticketID) + " \r\n" +
-        `File password is ${phone}`
+          req.headers.host +
+          "/downloads/" +
+          encodeURIComponent(ticketID) +
+          " \r\n" +
+          `File password is ${phone}`
       );
-      db.collection("reservations").doc(docID).update({
-        status: "paid"
-      }).then((e)=>{
-        console.log("success");
-        
-      })
+      db.collection("reservations")
+        .doc(docID)
+        .update({
+          status: "paid",
+        })
+        .then((e) => {
+          console.log("success");
+        });
     } else {
       if (
         status == "cancelled" ||
