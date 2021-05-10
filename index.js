@@ -7,7 +7,7 @@
 const express = require("express");
 const app = express();
 const dfff = require("dialogflow-fulfillment");
-const { Card, Suggestion } = require("dialogflow-fulfillment");
+const { Card, Suggestion, Payload } = require("dialogflow-fulfillment");
 var moment = require("moment");
 const { Paynow } = require("paynow");
 var pdf = require("html-pdf");
@@ -26,6 +26,7 @@ var admin = require("firebase-admin");
 
 var serviceAccount = require("./config/extracitywebhook-firebase-adminsdk-1eeft-734192acdb.json");
 const { default: paynow } = require("paynow/dist/paynow");
+const { Agent } = require("http");
 // const { response, response } = require("express");
 // const { time } = require("uniqid");
 
@@ -358,11 +359,90 @@ app.post("/booking", express.json(), (req, res) => {
     agent.end("");
   }
 
-  //let's get the time right
-  function askBookingDate(agent) {
+  async function askTrip(){
+    console.log("here");
     let travelFrom = agent.context.get("capture-to").parameters.travelFrom;
-    let travelTo = agent.context.get("capture-date").parameters.travelTo;
+    let travelTo = agent.context.get("capture-from").parameters.travelTo;
 
+    //check if there is a price
+    var fareRef = await db
+      .collection("fares")
+      .where("possibleTrips", "array-contains", `${travelFrom}-${travelTo}`)
+      .limit(1)
+      .get();
+    
+    if (fareRef.size == 1){
+      var fare = fareRef.docs[0].data();
+      //check if it has a ZWL price
+      if (fare.prices.ZWL == undefined){
+        //no ecocash or mobile money payments!
+        agent.add("Whoops! Mobile money payments are not accepted for the trip you selected!");
+        agent.add(new Suggestion("Start over"));
+        agent.add(new Suggestion("Cancel"));
+        return;
+      }
+      else{
+        //add to context
+        agent.context.set("backend_capture_fare", 13, {
+          fare: fare
+        });
+
+        //look for the trips that have travelTo and travelFrom stops
+        var tripsRef = await db
+          .collection("trips")
+          .where("possibleTrips", "array-contains", travelFrom + "-" + travelTo)
+          .get();
+
+        if (tripsRef.size == 0){
+          agent.add("Whoops! We currently do not have any coaches covering the trip you specified.");
+          agent.add(new Suggestion("Start over"));
+          agent.add(new Suggestion("Cancel"));
+          return
+        }
+        else{
+          agent.add("These are the routes that cover the trip you specified. Please select one.");
+          tripsRef.forEach((tripRef) => {
+            agent.add(new Suggestion(tripRef.data().name));
+          });
+          //agent.add(new QuickReply(tripsRef.map((doc) => (doc.data()).name)))
+        }
+      }
+    }
+    else{
+      agent.add("Whoops! We currently do not have coaches covering the trip you specified!");
+      agent.add(new Suggestion("Start over"));
+      agent.add(new Suggestion("Cancel"));
+      return;
+    }
+  }
+
+  //let's get the time right
+  async function askBookingDate(agent) {
+    let trip = agent.context.get("capture-trip").parameters.trip;
+    //get the trip
+    var tripRef = await db
+      .collection("trips")
+      .where("name", "==", trip)
+      .limit(1)
+      .get();
+
+    if (tripRef.size == 0){
+      agent.add("Whoops! We currently do not have any coaches covering the trip you specified.");
+      agent.add(new Suggestion("Start over"));
+      agent.add(new Suggestion("Cancel"));
+      return
+    }
+    else{
+      //save trip
+      agent.context.set("backend_capture_trip", 12, {
+        trip: tripRef.docs[0].data()
+      });
+      agent.add(
+        `On what date would you like to travel? \n\nExample: 30 January 2021 or next week Thursday`
+      );
+    }
+
+    /*
     //simplify
     const trip = `${travelFrom} to ${travelTo}`;
 
@@ -389,16 +469,61 @@ app.post("/booking", express.json(), (req, res) => {
         `On what date would you like to travel? \n\nExample: 30 January 2021 or next week Thursday`
       );
     }
-
+    */
     agent.end("");
+  }
+
+  function askBookingTime(agent){
+    let trip = agent.context.get("backend_capture_trip").parameters.trip;
+
+    if (trip === undefined){
+      agent.add("Whoops! An error occurred please start over");
+      agent.add(new Suggestion(`Start Over`));
+      return;
+    }
+    else{
+      agent.add("The departures times, the time where the bus leaves " + trip.from + ", are listed below. Please select one:");
+      displayTime(agent, trip);
+    }
+  }
+
+  function displayTime(agent, trip){
+    trip.times.forEach((time) => {
+      agent.add(new Suggestion(time));
+    });
   }
 
   // Get Traveller's Name
   function askTravellersName(agent) {
-    agent.add("May I have your first name and surname to finish booking?");
-
-    agent.end("");
+    let trip = agent.context.get("backend_capture_trip").parameters.trip;
+    //check time
+    var travelTime = agent.context.get("capture-schedule").parameters[
+      "travel-time"
+    ];
+    //check if this time is in the times array
+    if (trip === undefined){
+      agent.add("Whoops! An error occurred please start over");
+      agent.add(new Suggestion(`Start Over`));
+      return;
+    }
+    else{
+      console.log(trip.times,travelTime);
+      if (trip.times.includes(padNum(travelTime))){
+        agent.add("May I have your first name and surname to finish booking?");
+      }
+      else{
+        agent.add("Whoops! We do not have any coaches travelling to your destination at the specified time!");
+        displayTime(agent, trip);
+        return;
+      }
+    }
   }
+
+  function padNum(num) {
+    num = num.toString();
+    while (num.length < 4) num = "0" + num;
+    return num;
+  } 
 
   //Get Traveller's Phone
   function askPhoneNumber(agent) {
@@ -612,14 +737,17 @@ app.post("/booking", express.json(), (req, res) => {
     // save human readable date
     const timestamp = new Date();
 
+    let trip = agent.context.get("backend_capture_trip").parameters.trip;
+    let fare = agent.context.get("backend_capture_fare").parameters.fare;
+
     const id = uuidv4();
 
     //new Uni Timestamp
 
     //Let's join firstname and lastname
     var fullname = `${firstname} ${lastname}`;
-    var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
-    var tripReverse = `${travelTo} to ${travelFrom}`;
+    // var trip = `${travelFrom} to ${travelTo}`; // save trip instead of travelFrom and travelTo
+    // var tripReverse = `${travelTo} to ${travelFrom}`;
     //ticket // IDEA:
     var ticketId = ticketID();
 
@@ -632,60 +760,93 @@ app.post("/booking", express.json(), (req, res) => {
     );
 
     var amount = 0;
-    var possibleTrips = {
-      //Departure Bulawayo
-      "Bulawayo to Harare": 2500.0,
-      "Bulawayo to Gweru": 1000.0,
-      "Bulawayo to Kwekwe": 1500.0,
-      "Bulawayo to Kadoma": 1800.0,
-      "Bulawayo to Hwange": 2000.0,
-      "Bulawayo to Victoria Falls": 2500.0,
+    // var possibleTrips = {
+    //   //Departure Bulawayo
+    //   "Bulawayo to Harare": 2500.0,
+    //   "Bulawayo to Gweru": 1000.0,
+    //   "Bulawayo to Kwekwe": 1500.0,
+    //   "Bulawayo to Kadoma": 1800.0,
+    //   "Bulawayo to Hwange": 2000.0,
+    //   "Bulawayo to Victoria Falls": 2500.0,
 
-      //Departure Harare
-      "Harare to Bulawayo": 2500.0,
-      "Harare to Gweru": 1500.0,
-      "Harare to Kadoma": 1500,
-      "Harare to Kwekwe": 1300,
+    //   //Departure Harare
+    //   "Harare to Bulawayo": 2500.0,
+    //   "Harare to Gweru": 1500.0,
+    //   "Harare to Kadoma": 1500,
+    //   "Harare to Kwekwe": 1300,
 
-      //Departure Gweru
-      "Gweru to Bulawayo": 1000.0,
-      "Gweru to Kwekwe": 800.0,
-      "Gweru to Kadoma": 1000.0,
-      "Gweru to Harare": 1500.0,
+    //   //Departure Gweru
+    //   "Gweru to Bulawayo": 1000.0,
+    //   "Gweru to Kwekwe": 800.0,
+    //   "Gweru to Kadoma": 1000.0,
+    //   "Gweru to Harare": 1500.0,
 
-      //Departure Victoria Falls
-      "Victoria Falls to Hwange": 500.0,
-      "Victoria Falls to Bulawayo": 2500.0,
+    //   //Departure Victoria Falls
+    //   "Victoria Falls to Hwange": 500.0,
+    //   "Victoria Falls to Bulawayo": 2500.0,
 
-      //Departure Kwekwe
-      "Kwekwe to Bulawayo": 1500.0,
-      "Kwekwe to Gweru": 800.0,
-      "Kwekwe to Harare": 1000.0,
-      //Departure Chegutu
-      //Departure Kadoma
-      //Departure Hwange
-      "Hwange to Victoria Falls": 500.0,
-      "Hwange to Bulawayo": 2000.0,
-    };
+    //   //Departure Kwekwe
+    //   "Kwekwe to Bulawayo": 1500.0,
+    //   "Kwekwe to Gweru": 800.0,
+    //   "Kwekwe to Harare": 1000.0,
+    //   //Departure Chegutu
+    //   //Departure Kadoma
+    //   //Departure Hwange
+    //   "Hwange to Victoria Falls": 500.0,
+    //   "Hwange to Bulawayo": 2000.0,
+    // };
 
-    if (trip in possibleTrips) {
-      amount = possibleTrips[trip];
-    } else if (tripReverse in possibleTrips) {
-      amount = possibleTrips[tripReverse];
-    } else {
-      amount = 2000.0;
-    }
+    // if (trip in possibleTrips) {
+    //   amount = possibleTrips[trip];
+    // } else if (tripReverse in possibleTrips) {
+    //   amount = possibleTrips[tripReverse];
+    // } else {
+    //   amount = 2000.0;
+    // }
 
     var seatNo = generateRandomSeatNumber();
     var refNo = generateRandomReferenceNumber();
 
-    let paynow = new Paynow(
+    var arr = [travelFrom, travelTo];
+
+    //get number of active tickets
+    var paidCount = (await db
+      .collection("reservations")
+      .where("Trip", "==", trip.name)
+      .where("status", "==", "paid")
+      .where("Date", "==", momentTravelDate)
+      .where("TravelTime", "==", travelTime)
+      .get()).size;
+
+    var d = new Date();
+    d.setMinutes(d.getMinutes()-5);
+
+    //get number of pending tickets that were created within 5 minutes
+    var pendingCount = (await db
+      .collection("reservations")
+      .where("Trip", "==", trip.name)
+      .where("status", "==", "pending")
+      .where("Date", "==", momentTravelDate)
+      .where("TravelTime", "==", travelTime)
+      .where("BookingTime", ">=", d)
+      .get()).size;
+
+    if (trip.seats - paidCount - pendingCount < 1){
+      if (trip.seats == paidCount){
+        agent.add("There are no more seats available for the trip you selected! Please contact admin for more information.");
+      }
+      else{
+        agent.add("There are no seats available at the moment. Please check after 5 or so minutes");
+      }
+    }
+    else{
+      let paynow = new Paynow(
       process.env.PAYNOW_INTEGRATION_ID,
       process.env.PAYNOW_INTEGRATION_KEY
     );
 
     let payment = paynow.createPayment(ticketId, email);
-    payment.add(`Booking(${trip})`, amount);
+    payment.add(`Booking(${trip})`, fare.prices.ZWL);
 
     response = await paynow.sendMobile(payment, paymentAccount, paymentMethod);
 
@@ -707,9 +868,9 @@ app.post("/booking", express.json(), (req, res) => {
           fullname: fullname,
           pollURL: paynowReference,
           TicketID: ticketId,
-          Amount: amount,
+          Amount: fare.prices.ZWL,
           status: "pending",
-          Trip: trip,
+          Trip: trip.name,
           TravellingFrom: travelFrom,
           TravellingTo: travelTo,
           BookingTime: timestamp,
@@ -751,6 +912,8 @@ app.post("/booking", express.json(), (req, res) => {
       agent.add("Whoops, something went wrong!");
       console.log(response.error);
     }
+    }
+    
   } //).catch((ex) => {
   //     console.log("Something didn't go quite right", ex);
   //   });
@@ -788,6 +951,7 @@ app.post("/booking", express.json(), (req, res) => {
     )*/ if (
       true
     ) {
+      var link =  req.headers.host + "/downloads/" + encodeURIComponent(ticketID);
       //create pdf and send link
       agent.add(
         `You have successfully booked your ticket! \r\n` +
@@ -799,12 +963,15 @@ app.post("/booking", express.json(), (req, res) => {
           `TIME: ${time} \r\n` +
           `PHONE: ${phone} \r\n` +
           `\r\n To download your ticket, click the link below \r\n ` +
-          req.headers.host +
-          "/downloads/" +
-          encodeURIComponent(ticketID) +
+         link +
           " \r\n" +
           `File password is ${phone}`
       );
+    //   agent.add(new Payload({
+    // 'attachment': link,
+    // 'type': 'application/pdf'
+    // }));
+
       db.collection("reservations")
         .doc(docID)
         .update({
@@ -849,12 +1016,14 @@ app.post("/booking", express.json(), (req, res) => {
   intentMap.set("somethingCrazy", somethingCrazy);
 
   //payments
+  intentMap.set("askTrip", askTrip);
   intentMap.set("askEmailAddress", askEmailAddress);
   intentMap.set("askPaymentMethod", askPaymentMethod);
   intentMap.set("askMobileMoneyNumber", askMobileMoneyNumber);
   intentMap.set("confirmBooking", confirmBooking);
   intentMap.set("confirmationMessage", confirmationMessage);
   intentMap.set("checkPaymentStatus", checkPaymentStatus);
+  intentMap.set("Ask.booking.schedule", askBookingTime);
 
   agent.handleRequest(intentMap);
 });
