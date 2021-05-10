@@ -893,7 +893,7 @@ app.post("/booking", express.json(), (req, res) => {
             pollUrl: paynowReference,
             ticketID: ticketId,
             amount: amount,
-            trip: trip,
+            trip: trip.name,
             date: momentTravelDate,
             bookingTime: timestamp,
             time: travelTime,
