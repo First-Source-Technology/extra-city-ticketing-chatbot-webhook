@@ -58,6 +58,7 @@ app.get("/", (req, res) => {
 
 app.get("/downloads/:ticketID", async (req, res) => {
   let ticketID = decodeURIComponent(req.params.ticketID);
+  let tk = decodeURIComponent(req.params.tk);
   let rticketID = ticketID.replace(" ", "");
   let path = __dirname + `/downloads/pdf/${rticketID}.pdf`;
   let pathenc = __dirname + `/downloads/pdf/${rticketID}_encrypted.pdf`;
@@ -84,9 +85,14 @@ app.get("/downloads/:ticketID", async (req, res) => {
         }
 
         //hack
-        setTimeout(function () {
-          res.download(pathenc);
-        }, 5000);
+        if (snapshot.docs[0].id === tk && tk !== null){
+          res.download(path);
+        }
+        else{
+          setTimeout(function () {
+            res.download(pathenc);
+          }, 5000);
+        }
       }
     })
     .catch((err) => {
