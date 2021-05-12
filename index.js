@@ -315,7 +315,7 @@ function getTicketTemplate(req, ticket) {
                             </tr>
                             <tr>
                                 <td class="cls_007"><span class="cls_007">Price: ${formatter.format(
-                                  ticket.Amount
+                                  ticket.Amount.replace("$","USD")
                                 )}[${ticket.PaymentMethod}]</span></td>
                             </tr>
                             <tr>
