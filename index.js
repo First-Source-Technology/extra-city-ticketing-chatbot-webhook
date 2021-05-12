@@ -85,18 +85,19 @@ app.get("/downloads/:ticketID/:tk", async (req, res) => {
         }
 
         //hack
-        if (snapshot.docs[0].id === tk && tk !== null){
-          //res.download(path);
-          fs.readFile(path, function (err,data){
-             res.contentType("application/pdf");
-             res.send(data);
-          });
-        }
-        else{
+        
           setTimeout(function () {
-            res.download(pathenc);
+            if (snapshot.docs[0].id === tk && tk !== null){
+              //res.download(path);
+              fs.readFile(path, function (err,data){
+                 res.contentType("application/pdf");
+                 res.send(data);
+              });
+            }
+            else{
+              res.download(pathenc);
+            }
           }, 5000);
-        }
       }
     })
     .catch((err) => {
