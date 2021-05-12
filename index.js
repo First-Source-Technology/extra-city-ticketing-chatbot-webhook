@@ -957,7 +957,7 @@ app.post("/booking", express.json(), (req, res) => {
     )*/ if (
       true
     ) {
-      var link =  req.headers.host + "/downloads/" + encodeURIComponent(ticketID);
+      var link =  req.headers.host + "/downloads/" + encodeURIComponent(ticketID) + "/pdf";
       //create pdf and send link
       agent.add(
         `You have successfully booked your ticket! \r\n` +
