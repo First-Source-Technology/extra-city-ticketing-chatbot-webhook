@@ -145,7 +145,7 @@ async function generatePDF(req, ticket, path, pathenc) {
 function getTicketTemplate(req, ticket) {
   formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "ZWL",
+    currency: ticket.Currency ?? 'ZWL',
   });
 
   return `
@@ -316,7 +316,7 @@ function getTicketTemplate(req, ticket) {
                             <tr>
                                 <td class="cls_007"><span class="cls_007">Price: ${formatter.format(
                                   ticket.Amount
-                                )}[Online- CASH]</span></td>
+                                )}[${ticket.PaymentMethod}]</span></td>
                             </tr>
                             <tr>
                                 <td class="cls_006"><span class="cls_006">Terms & Conditions Apply  For</span></td>
