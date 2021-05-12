@@ -56,7 +56,7 @@ app.get("/", (req, res) => {
   res.send("Your application is running with no issues.");
 });
 
-app.get("/downloads/:ticketID", async (req, res) => {
+app.get("/downloads/:ticketID/:tk", async (req, res) => {
   let ticketID = decodeURIComponent(req.params.ticketID);
   let tk = decodeURIComponent(req.params.tk);
   let rticketID = ticketID.replace(" ", "");
