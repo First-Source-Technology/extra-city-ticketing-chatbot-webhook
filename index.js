@@ -132,7 +132,7 @@ async function generatePDF(req, ticket, path, pathenc) {
 }
 
 function getTicketTemplate(req, ticket) {
-  formatter = new Intl.NumberFormat("en-US", {
+  const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: ticket.Currency ?? "ZWL",
   });
@@ -487,7 +487,7 @@ app.post("/booking", express.json(), (req, res) => {
   }
 
   function padNum(num) {
-    num = num.toString();
+    let num = num.toString();
     while (num.length < 4) num = "0" + num;
     return num;
   }
@@ -516,7 +516,7 @@ app.post("/booking", express.json(), (req, res) => {
   function ticketID() {
     const date = new Date();
     const dateString = formatDate(date);
-    const num = (Math.floor(Math.random() * 1000) + 1).toString();
+    let num = (Math.floor(Math.random() * 1000) + 1).toString();
     num.length == 1 && (num = "0" + num);
     num.length == 2 && (num = "0" + num);
 
@@ -527,8 +527,8 @@ app.post("/booking", express.json(), (req, res) => {
   function formatDate(date) {
     let str = "";
     const y = date.getFullYear().toString();
-    const m = (date.getMonth() + 1).toString();
-    const d = date.getDate().toString();
+    let m = (date.getMonth() + 1).toString();
+    let d = date.getDate().toString();
 
     d.length == 1 && (d = "0" + d);
     m.length == 1 && (m = "0" + m);
@@ -637,7 +637,7 @@ app.post("/booking", express.json(), (req, res) => {
 
     const seat_letter = letters[Math.floor(Math.random() * 25).toString()];
 
-    const seat_number = (Math.floor(Math.random() * 100) + 1).toString();
+    let seat_number = (Math.floor(Math.random() * 100) + 1).toString();
     seat_number.length == 1 && (seat_number = "0" + seat_number);
 
     return seat_letter + seat_number;
@@ -818,39 +818,35 @@ app.post("/booking", express.json(), (req, res) => {
       process.env.PAYNOW_INTEGRATION_KEY
     );
 
-    let response = await paynow.pollTransaction(pollUrl);
-    let status = await response.status;
-    if (true) {
-      const link =
-        req.headers.host +
-        "/downloads/" +
-        encodeURIComponent(ticketID) +
-        "/pdf";
-      //create pdf and send link
-      agent.add(
-        `You have successfully booked your ticket! \r\n` +
-          `Poll URL: ${pollUrl} \r\n` +
-          `TICKET ID: ${ticketID} \r\n` +
-          `AMOUNT: ZWL${amount} \r\n` +
-          `TRIP: ${trip} \r\n` +
-          `DATE: ${date} \r\n` +
-          `TIME: ${time} \r\n` +
-          `PHONE: ${phone} \r\n` +
-          `\r\n To download your ticket, click the link below \r\n ` +
-          link +
-          " \r\n" +
-          `File password is ${phone}`
-      );
+    let status = await paynow.pollTransaction(pollUrl);
 
-      db.collection("reservations")
-        .doc(docID)
-        .update({
-          status: "paid",
-        })
-        .then((e) => {
-          console.log("success");
-        });
-    }
+    const link =
+      req.headers.host + "/downloads/" + encodeURIComponent(ticketID) + "/pdf";
+
+    // Create pdf and send link
+    agent.add(
+      `You have successfully booked your ticket! \r\n` +
+        `Poll URL: ${pollUrl} \r\n` +
+        `TICKET ID: ${ticketID} \r\n` +
+        `AMOUNT: ZWL${amount} \r\n` +
+        `TRIP: ${trip} \r\n` +
+        `DATE: ${date} \r\n` +
+        `TIME: ${time} \r\n` +
+        `PHONE: ${phone} \r\n` +
+        `\r\n To download your ticket, click the link below \r\n ` +
+        link +
+        " \r\n" +
+        `File password is ${phone}`
+    );
+
+    db.collection("reservations")
+      .doc(docID)
+      .update({
+        status: status.paid ? "paid" : "failed",
+      })
+      .then((e) => {
+        console.log("success");
+      });
   }
 
   // intentMaps are more like a register for all functions
